@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Settings - IT Infrastructure Monitor{% endblock %}
+{% block page_title %}System Configurations{% endblock %}
+
+{% block content %}
+<div class="row text-dark">
+    <div class="col-xl-8 col-lg-10">
+        <div class="metric-card">
+            <h5 class="fw-bold mb-4"><i class="fa-solid fa-sliders text-primary me-2"></i>Configure Health Alarm Thresholds</h5>
+            
+            <form action="{{ url_for('settings.update_settings') }}" method="POST" autocomplete="off">
+                <!-- CPU Threshold slider -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="cpu_threshold" class="form-label fw-bold mb-0">CPU Threshold Limit</label>
+                        <span class="badge bg-primary fs-6" id="cpu-badge">{{ settings.cpu_threshold | int }}%</span>
+                    </div>
+                    <p class="text-secondary small mb-2">Triggers alarm when logical CPU core averages exceed this ratio.</p>
+                    <input type="range" class="form-range" id="cpu_threshold" name="cpu_threshold" min="10" max="100" value="{{ settings.cpu_threshold | int }}" oninput="updateBadge('cpu', this.value)">
+                </div>
+
+                <!-- RAM Threshold slider -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="ram_threshold" class="form-label fw-bold mb-0">RAM Threshold Limit</label>
+                        <span class="badge bg-primary fs-6" id="ram-badge">{{ settings.ram_threshold | int }}%</span>
+                    </div>
+                    <p class="text-secondary small mb-2">Triggers alarm when memory allocation footprints exceed this ratio.</p>
+                    <input type="range" class="form-range" id="ram_threshold" name="ram_threshold" min="10" max="100" value="{{ settings.ram_threshold | int }}" oninput="updateBadge('ram', this.value)">
+                </div>
+
+                <!-- Disk Threshold slider -->
+                <div class="mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label for="disk_threshold" class="form-label fw-bold mb-0">Disk Storage Threshold Limit</label>
+                        <span class="badge bg-primary fs-6" id="disk-badge">{{ settings.disk_threshold | int }}%</span>
+                    </div>
+                    <p class="text-secondary small mb-2">Triggers alarm when mounted storage blocks utilization ratios exceed this value.</p>
+                    <input type="range" class="form-range" id="disk_threshold" name="disk_threshold" min="10" max="100" value="{{ settings.disk_threshold | int }}" oninput="updateBadge('disk', this.value)">
+                </div>
+
+                <hr class="my-4">
+
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-clock-rotate-left text-primary me-2"></i>Polling schedules</h5>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label for="refresh_interval" class="form-label fw-medium small">AJAX Refresh Interval (Seconds)</label>
+                        <select class="form-select bg-light text-dark border" id="refresh_interval" name="refresh_interval" required>
+                            <option value="2" {% if settings.refresh_interval == 2 %}selected{% endif %}>2 Seconds (Aggressive)</option>
+                            <option value="5" {% if settings.refresh_interval == 5 %}selected{% endif %}>5 Seconds (Recommended)</option>
+                            <option value="10" {% if settings.refresh_interval == 10 %}selected{% endif %}>10 Seconds (Standard)</option>
+                            <option value="30" {% if settings.refresh_interval == 30 %}selected{% endif %}>30 Seconds (Economic)</option>
+                            <option value="60" {% if settings.refresh_interval == 60 %}selected{% endif %}>60 Seconds (Passive)</option>
+                        </select>
+                        <small class="text-secondary d-block mt-1">Schedules client dashboard browser refresh rates.</small>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="email_address" class="form-label fw-medium small">Alert Recipient Email Address</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light border-end-0 text-secondary"><i class="fa-solid fa-envelope"></i></span>
+                            <input type="email" class="form-control bg-light border-start-0 ps-0 text-dark" id="email_address" name="email_address" placeholder="Enter recipient email" value="{{ settings.email_address or '' }}">
+                        </div>
+                        <small class="text-secondary d-block mt-1">Target recipient address for automated SMTP warnings.</small>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary fw-semibold px-4 py-2">
+                    <i class="fa-solid fa-floppy-disk me-2"></i>Save Configuration Changes
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Real-time slider badge updating helper
+    function updateBadge(type, val) {
+        document.getElementById(type + '-badge').innerText = val + '%';
+    }
+</script>
+{% endblock %}

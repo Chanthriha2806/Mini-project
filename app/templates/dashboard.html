@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - IT Infrastructure Monitor{% endblock %}
+{% block page_title %}Real-Time Metrics Overview{% endblock %}
+
+{% block head %}
+<!-- Chart.js Library CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+    .chart-container {
+        position: relative;
+        height: 200px;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hidden Metadata Block for JS config -->
+<div id="dashboard-meta" data-refresh-interval="{{ settings.refresh_interval }}" class="d-none"></div>
+
+<!-- Top Row: Server Status & Alerts Notification Banner -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="metric-card border-start border-4" id="healthStatusBox">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="fs-1 text-primary"><i class="fa-solid fa-server"></i></div>
+                    <div>
+                        <h5 class="fw-bold mb-1">Server Status: <span class="badge px-3 py-2 fw-bold" id="overallHealthBadge">Checking...</span></h5>
+                        <p class="text-secondary small mb-0" id="healthMessage">Analyzing real-time metrics against user thresholds...</p>
+                    </div>
+                </div>
+                <!-- Loading Indicator spinner -->
+                <div class="d-flex align-items-center gap-2">
+                    <div class="spinner-border spinner-border-sm text-primary d-none" id="metricsSpinner" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <span class="text-secondary small fw-medium">Last audited: <span id="sys-time-now">Just now</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Second Row: Dynamic Telemetry Cards -->
+<div class="row mb-4">
+    <!-- CPU Usage Card -->
+    <div class="col-xl-3 col-md-6 mb-4 mb-xl-0">
+        <div class="metric-card d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="card-title-meta">CPU UTILIZATION</span>
+                    <i class="fa-solid fa-microchip text-primary fs-5"></i>
+                </div>
+                <div class="card-value my-2" id="cpu-usage-val">--%</div>
+                <div class="progress mb-2">
+                    <div class="progress-bar" id="cpu-progress-bar" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between text-secondary small border-top pt-2 mt-2">
+                <span>Cores: <strong id="cpu-cores-val">--</strong></span>
+                <span>Freq: <strong id="cpu-freq-val">-- GHz</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- RAM Allocation Card -->
+    <div class="col-xl-3 col-md-6 mb-4 mb-xl-0">
+        <div class="metric-card d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="card-title-meta">RAM ALLOCATION</span>
+                    <i class="fa-solid fa-memory text-primary fs-5"></i>
+                </div>
+                <div class="card-value my-2" id="ram-percent-val">--%</div>
+                <div class="progress mb-2">
+                    <div class="progress-bar" id="ram-progress-bar" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between text-secondary small border-top pt-2 mt-2">
+                <span>Usage: <strong id="ram-used-total">-- GB</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disk Storage Card -->
+    <div class="col-xl-3 col-md-6 mb-4 mb-md-0">
+        <div class="metric-card d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="card-title-meta">DISK STORAGE</span>
+                    <i class="fa-solid fa-hard-drive text-primary fs-5"></i>
+                </div>
+                <div class="card-value my-2" id="disk-percent-val">--%</div>
+                <div class="progress mb-2">
+                    <div class="progress-bar" id="disk-progress-bar" role="progressbar" style="width: 0%"></div>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between text-secondary small border-top pt-2 mt-2">
+                <span>Usage: <strong id="disk-used-total">-- GB</strong></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Network Rates Card -->
+    <div class="col-xl-3 col-md-6">
+        <div class="metric-card d-flex flex-column justify-content-between">
+            <div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="card-title-meta">NETWORK THROUGHPUT</span>
+                    <i class="fa-solid fa-network-wired text-primary fs-5"></i>
+                </div>
+                <div class="row g-2 my-2">
+                    <div class="col-6">
+                        <small class="text-secondary d-block lh-1 small">UPLOAD</small>
+                        <strong class="fs-5 text-primary text-truncate" id="net-upload-val">-- KB/s</strong>
+                    </div>
+                    <div class="col-6">
+                        <small class="text-secondary d-block lh-1 small">DOWNLOAD</small>
+                        <strong class="fs-5 text-info text-truncate" id="net-download-val">-- KB/s</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="d-flex flex-column gap-1 text-secondary small border-top pt-2 mt-2">
+                <div class="d-flex justify-content-between"><span>IP: <strong id="net-ip-val">--</strong></span></div>
+                <div class="d-flex justify-content-between" style="font-size: 0.75rem;"><span>MAC: <strong id="net-mac-val">--</strong></span></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Third Row: System General Specs, Uptime, Users & Processes counts -->
+<div class="row mb-4">
+    <!-- OS Specs Card -->
+    <div class="col-xl-6 col-md-6 mb-4 mb-xl-0">
+        <div class="metric-card">
+            <h6 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-circle-info text-primary me-2"></i>Infrastructure Meta</h6>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <span class="text-secondary small d-block">Hostname:</span>
+                    <strong class="text-primary" id="sys-hostname-val">--</strong>
+                </div>
+                <div class="col-md-6">
+                    <span class="text-secondary small d-block">Operating System:</span>
+                    <strong class="text-primary" id="sys-os-val">--</strong>
+                </div>
+                <div class="col-md-6">
+                    <span class="text-secondary small d-block">Boot Timestamp:</span>
+                    <span class="text-secondary" id="sys-boot-val">--</span>
+                </div>
+                <div class="col-md-6">
+                    <span class="text-secondary small d-block">Uptime Duration:</span>
+                    <strong class="text-success" id="sys-uptime-val">--</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Counters Card -->
+    <div class="col-xl-6 col-md-6">
+        <div class="metric-card d-flex align-items-center justify-content-around">
+            <div class="text-center">
+                <i class="fa-solid fa-users text-primary fs-1 mb-2"></i>
+                <div class="fs-3 fw-bold text-dark" id="counts-users">--</div>
+                <small class="text-secondary uppercase small font-weight-semibold">Active Users</small>
+            </div>
+            <div class="vr" style="height: 60px;"></div>
+            <div class="text-center">
+                <i class="fa-solid fa-window-restore text-primary fs-1 mb-2"></i>
+                <div class="fs-3 fw-bold text-dark" id="counts-processes">--</div>
+                <small class="text-secondary uppercase small font-weight-semibold">Active Processes</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fourth Row: Chart.js Canvas Elements Grid -->
+<div class="row mb-4">
+    <!-- CPU history -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="metric-card">
+            <h6 class="fw-bold mb-3"><i class="fa-solid fa-chart-line text-primary me-2"></i>CPU Usage History</h6>
+            <div class="chart-container">
+                <canvas id="cpuHistoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <!-- RAM history -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="metric-card">
+            <h6 class="fw-bold mb-3"><i class="fa-solid fa-chart-line text-primary me-2"></i>RAM Usage History</h6>
+            <div class="chart-container">
+                <canvas id="ramHistoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Disk history -->
+    <div class="col-xl-4 col-md-12 mb-4">
+        <div class="metric-card">
+            <h6 class="fw-bold mb-3"><i class="fa-solid fa-chart-line text-primary me-2"></i>Disk Usage History</h6>
+            <div class="chart-container">
+                <canvas id="diskHistoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Network speeds -->
+    <div class="col-12 mb-4">
+        <div class="metric-card">
+            <h6 class="fw-bold mb-3"><i class="fa-solid fa-chart-line text-primary me-2"></i>Network Speeds (Upload / Download)</h6>
+            <div class="chart-container" style="height: 250px;">
+                <canvas id="networkHistoryChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fifth Row: Top Processes list & Database Alerts Log -->
+<div class="row" id="alerts">
+    <!-- Top Processes Table -->
+    <div class="col-xl-7 mb-4 mb-xl-0">
+        <div class="metric-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold mb-0"><i class="fa-solid fa-list-check text-primary me-2"></i>Top Running Processes</h6>
+                <span class="badge bg-primary">Sorted by CPU%</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-dark small" style="min-width: 450px;">
+                    <thead>
+                        <tr class="text-secondary border-bottom">
+                            <th scope="col">PID</th>
+                            <th scope="col">Process Name</th>
+                            <th scope="col">User</th>
+                            <th scope="col" class="text-end">CPU %</th>
+                            <th scope="col" class="text-end">Memory %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="processes-table-body">
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-secondary">Gathering live processes data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Alerts Notification Panel -->
+    <div class="col-xl-5">
+        <div class="metric-card">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold mb-0"><i class="fa-solid fa-triangle-exclamation text-primary me-2"></i>Alerts Feed Log</h6>
+                <button class="btn btn-sm btn-outline-secondary py-1 px-2 small fw-semibold" id="clearAlertsBtn" style="font-size: 0.75rem;">
+                    <i class="fa-solid fa-trash me-1"></i>Clear Logs
+                </button>
+            </div>
+            <div class="alerts-feed-wrapper overflow-auto" style="max-height: 320px;">
+                {% if recent_alerts %}
+                    <div class="list-group list-group-flush">
+                    {% for alert in recent_alerts %}
+                        <div class="list-group-item px-0 py-3 border-bottom">
+                            <div class="d-flex w-100 justify-content-between align-items-center mb-1">
+                                <h6 class="mb-0 fw-bold {% if alert.status == 'ACTIVE' %}text-danger{% else %}text-secondary{% endif %}">
+                                    <i class="fa-solid {% if alert.status == 'ACTIVE' %}fa-bell-on animate-pulse{% else %}fa-circle-check{% endif %} me-2"></i>
+                                    {{ alert.metric_type }} Breach
+                                </h6>
+                                <span class="badge {% if alert.status == 'ACTIVE' %}bg-danger{% else %}bg-secondary{% endif %} small">
+                                    {{ alert.status }}
+                                </span>
+                            </div>
+                            <p class="mb-1 text-secondary small">{{ alert.message }}</p>
+                            <div class="d-flex justify-content-between text-secondary style-info mt-1" style="font-size: 0.75rem;">
+                                <span>Limit: <strong>{{ alert.threshold }}%</strong> | Value: <strong>{{ alert.value }}%</strong></span>
+                                <span>{{ alert.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fa-solid fa-shield-halved text-success fs-1 mb-2"></i>
+                        <p class="text-secondary small mb-0">No alerts triggered in system logs.</p>
+                    </div>
+                {% endif %}
+            </div>
+    </div>
+</div>
+
+<!-- Sixth Row: AI Recommendation diagnostics -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="metric-card">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h6 class="fw-bold mb-0"><i class="fa-solid fa-robot text-primary me-2"></i>AI-Powered Diagnostics & Recommendations</h6>
+                <span class="badge bg-primary" id="recommendations-count">Analyzing...</span>
+            </div>
+            
+            <div class="row g-4" id="recommendations-container">
+                <!-- AI recommendation items will be injected here dynamically by JavaScript -->
+                <div class="col-12 text-center py-4 text-secondary">
+                    <i class="fa-solid fa-circle-notch fa-spin fs-4 mb-2 d-block text-primary"></i>
+                    <span>Analyzing metrics to compile real-time recommendation checklists...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Dashboard Controller Script -->
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

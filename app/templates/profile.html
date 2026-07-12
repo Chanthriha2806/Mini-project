@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}User Profile - IT Infrastructure Monitor{% endblock %}
+{% block page_title %}User Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-xl-4 col-md-5 mb-4">
+        <!-- Profile info card -->
+        <div class="metric-card d-flex flex-column align-items-center text-center">
+            <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold fs-1 mb-3" style="width: 100px; height: 100px;">
+                {{ current_user.username[0] | upper }}
+            </div>
+            <h4 class="fw-bold mb-1">{{ current_user.username }}</h4>
+            <p class="text-secondary small mb-3"><i class="fa-solid fa-envelope me-1"></i> {{ current_user.email }}</p>
+            <div class="w-100 border-top pt-3 text-start">
+                <div class="row mb-2">
+                    <div class="col-6 text-secondary small fw-medium">Role:</div>
+                    <div class="col-6 fw-semibold text-end text-primary">Administrator</div>
+                </div>
+                <div class="row">
+                    <div class="col-6 text-secondary small fw-medium">Member Since:</div>
+                    <div class="col-6 text-end text-secondary" style="font-size: 0.85rem;">{{ current_user.created_at.strftime('%Y-%m-%d') }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-xl-8 col-md-7">
+        <!-- Edit Profile card -->
+        <div class="metric-card">
+            <h5 class="fw-bold mb-4"><i class="fa-solid fa-user-pen text-primary me-2"></i>Edit Profile Details</h5>
+            
+            <form action="{{ url_for('auth.profile') }}" method="POST" autocomplete="off">
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label for="username" class="form-label fw-medium small">Username</label>
+                        <input type="text" class="form-control text-dark bg-light border" id="username" name="username" value="{{ current_user.username }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label fw-medium small">Email Address</label>
+                        <input type="email" class="form-control text-dark bg-light border" id="email" name="email" value="{{ current_user.email }}" required>
+                    </div>
+                </div>
+
+                <hr class="my-4">
+                
+                <h5 class="fw-bold mb-3"><i class="fa-solid fa-shield-halved text-primary me-2"></i>Change Password</h5>
+                <p class="text-secondary small mb-3">Leave password fields blank if you do not wish to modify your current password.</p>
+
+                <div class="mb-3">
+                    <label for="current_password" class="form-label fw-medium small">Current Password</label>
+                    <input type="password" class="form-control text-dark bg-light border" id="current_password" name="current_password" placeholder="Verify current credentials to update settings">
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3 mb-md-0">
+                        <label for="new_password" class="form-label fw-medium small">New Password</label>
+                        <input type="password" class="form-control text-dark bg-light border" id="new_password" name="new_password" placeholder="Enter new password">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="confirm_new_password" class="form-label fw-medium small">Confirm New Password</label>
+                        <input type="password" class="form-control text-dark bg-light border" id="confirm_new_password" name="confirm_new_password" placeholder="Verify new password">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary fw-semibold px-4 py-2">Save Profile Updates</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}Register - IT Infrastructure Monitor{% endblock %}
+
+{% block guest_content %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="brand-header">
+            <i class="fa-solid fa-circle-nodes"></i>
+            <h3 class="fw-bold mt-3 text-dark">MonitorAI Register</h3>
+            <p class="text-secondary small">Sign up to monitor server metrics in real time</p>
+        </div>
+
+        <!-- Flash alerts for registration errors -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+                        <small>{{ message }}</small>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form action="{{ url_for('auth.register') }}" method="POST" autocomplete="off">
+            <div class="mb-3">
+                <label for="username" class="form-label text-dark fw-medium small">Username</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-secondary"><i class="fa-solid fa-user"></i></span>
+                    <input type="text" class="form-control bg-light border-start-0 ps-0 text-dark" id="username" name="username" placeholder="Choose username" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="email" class="form-label text-dark fw-medium small">Email Address</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-secondary"><i class="fa-solid fa-envelope"></i></span>
+                    <input type="email" class="form-control bg-light border-start-0 ps-0 text-dark" id="email" name="email" placeholder="Enter email" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label text-dark fw-medium small">Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-secondary"><i class="fa-solid fa-lock"></i></span>
+                    <input type="password" class="form-control bg-light border-start-0 ps-0 text-dark" id="password" name="password" placeholder="Create password" required>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label for="confirm_password" class="form-label text-dark fw-medium small">Confirm Password</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0 text-secondary"><i class="fa-solid fa-lock"></i></span>
+                    <input type="password" class="form-control bg-light border-start-0 ps-0 text-dark" id="confirm_password" name="confirm_password" placeholder="Verify password" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 py-2.5 fw-semibold mb-3">Sign Up</button>
+
+            <div class="text-center">
+                <span class="text-secondary small">Already have an account? </span>
+                <a href="{{ url_for('auth.login') }}" class="text-primary small fw-semibold text-decoration-none">Sign In</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

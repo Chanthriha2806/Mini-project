@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+
+{% block title %}Detailed System Specs - IT Infrastructure Monitor{% endblock %}
+{% block page_title %}Detailed Diagnostics{% endblock %}
+
+{% block content %}
+<!-- Top Row: Host Info Meta Card -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="metric-card bg-light border-0">
+            <h5 class="fw-bold text-dark mb-3"><i class="fa-solid fa-desktop text-primary me-2"></i>Node System Profile</h5>
+            <div class="row g-3 text-dark">
+                <div class="col-xl-3 col-md-6">
+                    <span class="text-secondary small d-block">Node Hostname</span>
+                    <strong class="fs-6">{{ system.hostname }}</strong>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <span class="text-secondary small d-block">Operating System Kernel</span>
+                    <strong class="fs-6">{{ system.os }}</strong>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <span class="text-secondary small d-block">Architecture & Machine</span>
+                    <strong class="fs-6">{{ system.machine }} ({{ system.processor }})</strong>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <span class="text-secondary small d-block">Python Runtime Engine</span>
+                    <strong class="fs-6">v{{ system.python_version }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Second Row: Detailed CPU & Memory specs -->
+<div class="row mb-4 text-dark">
+    <!-- Detailed CPU Properties -->
+    <div class="col-xl-6 mb-4 mb-xl-0">
+        <div class="metric-card">
+            <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-microchip text-primary me-2"></i>CPU Hardware Diagnostics</h6>
+            
+            <div class="row g-3 mb-4">
+                <div class="col-6">
+                    <span class="text-secondary small d-block">Physical Core Blocks</span>
+                    <strong class="fs-4">{{ cpu.cores_physical }} Cores</strong>
+                </div>
+                <div class="col-6">
+                    <span class="text-secondary small d-block">Logical Thread Blocks</span>
+                    <strong class="fs-4">{{ cpu.cores_logical }} Threads</strong>
+                </div>
+                <div class="col-6">
+                    <span class="text-secondary small d-block">Max/Current Frequency</span>
+                    <strong class="fs-5">{{ cpu.frequency }} GHz</strong>
+                </div>
+                <div class="col-6">
+                    <span class="text-secondary small d-block">Current Utilization</span>
+                    <strong class="fs-5 text-primary">{{ cpu.usage }}%</strong>
+                </div>
+            </div>
+            
+            <hr class="my-3">
+            
+            <div class="row g-3">
+                <div class="col-6">
+                    <span class="text-secondary small d-block">CPU Context Switches</span>
+                    <strong class="fs-6 text-secondary">{{ cpu.ctx_switches }}</strong>
+                </div>
+                <div class="col-6">
+                    <span class="text-secondary small d-block">Hardware Interrupts</span>
+                    <strong class="fs-6 text-secondary">{{ cpu.interrupts }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed RAM and Swap Properties -->
+    <div class="col-xl-6">
+        <div class="metric-card">
+            <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-memory text-primary me-2"></i>RAM & Swap Allocation</h6>
+            
+            <!-- Virtual Memory -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-medium small">Physical RAM Usage</span>
+                    <span class="fw-bold text-primary">{{ memory.percent }}%</span>
+                </div>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ memory.percent }}%"></div>
+                </div>
+                <small class="text-secondary d-block">Used: {{ memory.used }} GB | Free/Avail: {{ memory.available }} GB | Total: {{ memory.total }} GB</small>
+            </div>
+            
+            <hr class="my-3">
+
+            <!-- Swap Memory -->
+            <div class="mb-3">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-medium small">Virtual SWAP Allocation</span>
+                    <span class="fw-bold text-info">{{ memory.swap_percent }}%</span>
+                </div>
+                <div class="progress mb-2">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: {{ memory.swap_percent }}%"></div>
+                </div>
+                <small class="text-secondary d-block">Used: {{ memory.swap_used }} GB | Free: {{ memory.swap_free }} GB | Total: {{ memory.swap_total }} GB</small>
+            </div>
+            
+            <hr class="my-3">
+            
+            <div class="row g-2">
+                <div class="col-6">
+                    <span class="text-secondary small d-block">Active Allocations</span>
+                    <span class="fw-semibold text-secondary">{{ memory.active }} GB</span>
+                </div>
+                <div class="col-6">
+                    <span class="text-secondary small d-block">Inactive Allocations</span>
+                    <span class="fw-semibold text-secondary">{{ memory.inactive }} GB</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Third Row: Disk Partitions and Mount Capacities -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="metric-card">
+            <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-hard-drive text-primary me-2"></i>Disk Partitions & Mount Configurations</h6>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-dark small" style="min-width: 600px;">
+                    <thead>
+                        <tr class="text-secondary border-bottom">
+                            <th scope="col">Device Block</th>
+                            <th scope="col">Mount Point</th>
+                            <th scope="col">Filesystem</th>
+                            <th scope="col">Capacity (GB)</th>
+                            <th scope="col">Used (GB)</th>
+                            <th scope="col">Free (GB)</th>
+                            <th scope="col" style="width: 15%;">Allocation Ratio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if partitions %}
+                            {% for part in partitions %}
+                            <tr>
+                                <td><strong class="text-dark">{{ part.device }}</strong></td>
+                                <td><code>{{ part.mountpoint }}</code></td>
+                                <td><span class="badge bg-secondary">{{ part.fstype | upper }}</span></td>
+                                <td>{{ part.total }} GB</td>
+                                <td>{{ part.used }} GB</td>
+                                <td>{{ part.free }} GB</td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <div class="progress flex-grow-1" style="height: 6px;">
+                                            <div class="progress-bar {% if part.percent > 90 %}bg-danger{% elif part.percent > 75 %}bg-warning{% else %}bg-success{% endif %}" role="progressbar" style="width: {{ part.percent }}%"></div>
+                                        </div>
+                                        <strong class="small">{{ part.percent }}%</strong>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-secondary">No mounted disk subsystems discovered.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Fourth Row: Network interfaces configurations -->
+<div class="row mb-4 text-dark">
+    <div class="col-12">
+        <div class="metric-card">
+            <h6 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-network-wired text-primary me-2"></i>Network Interface Configuration Cards</h6>
+            <div class="row g-3">
+                {% if interfaces %}
+                    {% for iface in interfaces %}
+                    <div class="col-xl-4 col-md-6">
+                        <div class="card bg-light border p-3" style="border-radius: 8px;">
+                            <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-2">
+                                <strong class="text-primary text-truncate" title="{{ iface.name }}">{{ iface.name }}</strong>
+                                <span class="badge {% if iface.is_up %}bg-success{% else %}bg-danger{% endif %} small">
+                                    {% if iface.is_up %}Link Active{% else %}Link Down{% endif %}
+                                </span>
+                            </div>
+                            <div class="small text-secondary flex-column gap-1">
+                                <div class="d-flex justify-content-between"><span>MTU Frame:</span> <strong class="text-dark">{{ iface.mtu }}</strong></div>
+                                <div class="d-flex justify-content-between"><span>Card Speed:</span> <strong class="text-dark">{{ iface.speed }} Mbps</strong></div>
+                                <div class="d-flex justify-content-between"><span>IPv4 Addr:</span> <code class="text-dark">{{ iface.ipv4 }}</code></div>
+                                <div class="d-flex justify-content-between"><span>IPv6 Addr:</span> <code class="text-dark text-truncate" style="max-width: 140px;" title="{{ iface.ipv6 }}">{{ iface.ipv6 }}</code></div>
+                                <div class="d-flex justify-content-between border-top pt-1 mt-1"><span>MAC Addr:</span> <code class="text-dark">{{ iface.mac }}</code></div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-12 text-center py-4 text-secondary">
+                        No active network interface controllers detected.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
