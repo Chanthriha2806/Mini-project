@@ -3,6 +3,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const dashboardMeta = document.getElementById('dashboard-meta');
     const refreshInterval = parseInt(dashboardMeta.getAttribute('data-refresh-interval')) * 1000 || 5000;
     
+    // Remote device tracking
+    let selectedUserId = '';
+    let selectedHostname = '';
+    
     // 2. Global instances to maintain Chart.js configurations
     let cpuChart = null;
     let ramChart = null;
@@ -43,7 +47,17 @@ document.addEventListener('DOMContentLoaded', () => {
     // 3. Initialize line charts with initial historical data
     async function initializeCharts() {
         try {
-            const response = await fetch('/api/charts');
+            // Destroy existing charts to prevent memory leaks/re-drawing bugs
+            if (cpuChart) cpuChart.destroy();
+            if (ramChart) ramChart.destroy();
+            if (diskChart) diskChart.destroy();
+            if (netChart) netChart.destroy();
+
+            let url = '/api/charts';
+            if (selectedUserId && selectedHostname) {
+                url += `?user_id=${selectedUserId}&hostname=${encodeURIComponent(selectedHostname)}`;
+            }
+            const response = await fetch(url);
             const data = await response.json();
 
             const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
@@ -145,7 +159,11 @@ document.addEventListener('DOMContentLoaded', () => {
         if (spinner) spinner.classList.remove('d-none');
 
         try {
-            const response = await fetch('/api/metrics');
+            let url = '/api/metrics';
+            if (selectedUserId && selectedHostname) {
+                url += `?user_id=${selectedUserId}&hostname=${encodeURIComponent(selectedHostname)}`;
+            }
+            const response = await fetch(url);
             if (!response.ok) throw new Error('API server returned error');
             const data = await response.json();
 
@@ -364,6 +382,26 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (err) {
                 console.error('Failed to clear logs:', err);
             }
+        });
+    }
+
+    // Device Selector Dropdown Listener
+    const deviceSelector = document.getElementById('deviceSelector');
+    if (deviceSelector) {
+        deviceSelector.addEventListener('change', (e) => {
+            const val = e.target.value;
+            if (val) {
+                const parts = val.split('|');
+                selectedUserId = parts[0];
+                selectedHostname = parts[1];
+            } else {
+                selectedUserId = '';
+                selectedHostname = '';
+            }
+            // Re-initialize charts and fetch immediate update
+            initializeCharts().then(() => {
+                updateDashboardMetrics();
+            });
         });
     }
 

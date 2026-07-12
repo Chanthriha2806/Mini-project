@@ -40,8 +40,29 @@
                 </div>
             </div>
         </div>
+{% if current_user.is_admin %}
+<!-- Admin Device Selector -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="metric-card bg-body-tertiary">
+            <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fs-4 text-primary"><i class="fa-solid fa-laptop-code"></i></span>
+                    <h5 class="fw-bold mb-0 text-dark-emphasis">Select Remote Machine to Monitor</h5>
+                </div>
+                <div>
+                    <select class="form-select border-primary" id="deviceSelector" style="min-width: 250px;">
+                        <option value="" selected>Local Machine (Server Host)</option>
+                        {% for dev in devices %}
+                            <option value="{{ dev.user_id }}|{{ dev.hostname }}">{{ dev.username }} - {{ dev.hostname }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Second Row: Dynamic Telemetry Cards -->
 <div class="row mb-4">
