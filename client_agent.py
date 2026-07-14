@@ -112,16 +112,29 @@ def main():
     print("           MonitorAI Remote Client Agent            ")
     print("====================================================")
 
-    # Server connection setup
-    server_url = input("Enter Server URL (default: http://localhost:5000): ").strip()
-    if not server_url:
-        server_url = "http://localhost:5000"
+    # Default parameters
+    server_url = "http://localhost:5000"
+    username_email = "client"
+    password = "client123"
+
+    # Allow CLI overrides: client_agent.py [url] [username] [password]
+    if len(sys.argv) > 1:
+        server_url = sys.argv[1]
+    if len(sys.argv) > 2:
+        username_email = sys.argv[2]
+    if len(sys.argv) > 3:
+        password = sys.argv[3]
+
+    # Explicit interactive option
+    if '--interactive' in sys.argv:
+        server_url_input = input("Enter Server URL (default: http://localhost:5000): ").strip()
+        if server_url_input:
+            server_url = server_url_input
+        username_email = input("Username or Email: ").strip()
+        password = getpass.getpass("Password: ")
+
     if server_url.endswith("/"):
         server_url = server_url[:-1]
-
-    # User Authentication
-    username_email = input("Username or Email: ").strip()
-    password = getpass.getpass("Password: ")
 
     session = requests.Session()
     login_url = f"{server_url}/auth/login"

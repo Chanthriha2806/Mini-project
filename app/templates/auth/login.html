@@ -49,9 +49,27 @@
 
             <button type="submit" class="btn btn-primary w-100 py-2.5 fw-semibold mb-3">Sign In</button>
 
-            <div class="text-center">
+            <div class="text-center mb-4">
                 <span class="text-secondary small">New user? </span>
                 <a href="{{ url_for('auth.register') }}" class="text-primary small fw-semibold text-decoration-none">Create Account</a>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="text-center bg-body-secondary p-3 rounded" style="border: 1px dashed var(--border-color);">
+                <span class="d-block text-dark-emphasis fw-bold mb-2" style="font-size: 0.85rem;"><i class="fa-solid fa-download text-primary me-1"></i>Monitor Your Laptop</span>
+                <span class="d-block text-secondary mb-3" style="font-size: 0.75rem;">Download these files to start reporting metrics from your laptop:</span>
+                <div class="d-flex justify-content-center gap-2 flex-wrap">
+                    <a href="{{ url_for('static', filename='downloads/client_agent.py') }}" class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1.5" download>
+                        <i class="fa-brands fa-python me-1"></i>1. Agent Script
+                    </a>
+                    <a href="{{ url_for('static', filename='downloads/requirements.txt') }}" class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1.5" download>
+                        <i class="fa-solid fa-list me-1"></i>2. Requirements
+                    </a>
+                    <a href="{{ url_for('static', filename='downloads/run_client.bat') }}" class="btn btn-sm btn-outline-success fw-semibold px-2 py-1.5" download>
+                        <i class="fa-solid fa-bolt me-1"></i>3. One-Click Launcher
+                    </a>
+                </div>
             </div>
         </form>
     </div>

@@ -44,3 +44,34 @@ def clear_alerts():
     success, message = DashboardController.clear_resolved_alerts()
     return jsonify({'success': success, 'message': message})
 
+@dashboard_bp.route('/api/process/kill', methods=['POST'])
+@login_required
+def kill_process():
+    """Endpoint for administrators to terminate runaway CPU/RAM tasks."""
+    data = request.get_json() or {}
+    pid = data.get('pid')
+    if not pid:
+        return jsonify({'success': False, 'message': 'Missing process PID.'}), 400
+    success, message = DashboardController.kill_process(current_user, pid)
+    return jsonify({'success': success, 'message': message}), 200 if success else 400
+
+@dashboard_bp.route('/api/ai/chat', methods=['POST'])
+@login_required
+def chat_with_ai():
+    """Endpoint for context-aware diagnostic recommendations chat."""
+    data = request.get_json() or {}
+    message = data.get('message')
+    metrics_context = data.get('metrics')
+    if not message:
+        return jsonify({'success': False, 'message': 'Missing query message.'}), 400
+    
+    # If no metrics context was supplied from frontend, query it fresh
+    if not metrics_context:
+        user_id = data.get('user_id')
+        hostname = data.get('hostname')
+        metrics_context = DashboardController.get_api_metrics(current_user, user_id=user_id, hostname=hostname)
+        
+    response_md = DashboardController.chat_with_ai(current_user, message, metrics_context)
+    return jsonify({'success': True, 'response': response_md})
+
+

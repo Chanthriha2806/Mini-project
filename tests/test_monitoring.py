@@ -96,5 +96,12 @@ class TestITMonitoring(unittest.TestCase):
         self.assertEqual(response_dashboard.status_code, 302)
         self.assertIn('/auth/login', response_dashboard.location)
 
+        # 4. Unauthorized api endpoints redirect to login
+        response_kill = self.client.post('/api/process/kill', json={'pid': 9999})
+        self.assertEqual(response_kill.status_code, 302)
+        
+        response_chat = self.client.post('/api/ai/chat', json={'message': 'hello'})
+        self.assertEqual(response_chat.status_code, 302)
+
 if __name__ == '__main__':
     unittest.main()

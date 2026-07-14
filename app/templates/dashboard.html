@@ -118,8 +118,13 @@
                     <div class="progress-bar" id="disk-progress-bar" role="progressbar" style="width: 0%"></div>
                 </div>
             </div>
-            <div class="d-flex justify-content-between text-secondary small border-top pt-2 mt-2">
-                <span>Usage: <strong id="disk-used-total">-- GB</strong></span>
+            <div class="d-flex flex-column text-secondary small border-top pt-2 mt-2">
+                <div class="d-flex justify-content-between">
+                    <span>Usage: <strong id="disk-used-total">-- GB</strong></span>
+                </div>
+                <div class="mt-1 d-flex align-items-center gap-1" style="font-size: 0.72rem;">
+                    <i class="fa-solid fa-hourglass-half text-secondary"></i><span id="disk-prediction-val" class="fw-semibold text-secondary">Calculating...</span>
+                </div>
             </div>
         </div>
     </div>
@@ -257,6 +262,9 @@
                             <th scope="col">User</th>
                             <th scope="col" class="text-end">CPU %</th>
                             <th scope="col" class="text-end">Memory %</th>
+                            {% if current_user.is_admin %}
+                            <th scope="col" class="text-end">Actions</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody id="processes-table-body">
@@ -326,6 +334,44 @@
                     <span>Analyzing metrics to compile real-time recommendation checklists...</span>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Floating AI Chatbot Widget -->
+<div class="chatbot-widget">
+    <button class="chatbot-launcher" id="chatbotLauncher" title="MonitorAI Diagnostic Chatbot">
+        <i class="fa-solid fa-robot"></i>
+    </button>
+    <div class="chatbot-panel" id="chatbotPanel">
+        <div class="chatbot-header">
+            <div class="chatbot-header-title">
+                <i class="fa-solid fa-robot fs-5"></i>
+                <div>
+                    <h6 class="fw-bold text-white mb-0">MonitorAI Agent</h6>
+                    <span class="text-white-50" style="font-size: 0.7rem;">Diagnostics Assistant</span>
+                </div>
+            </div>
+            <button class="chatbot-close-btn" id="chatbotCloseBtn">&times;</button>
+        </div>
+        <div class="chatbot-body" id="chatbotBody">
+            <div class="chatbot-message ai">
+                <p>Hello! I am **MonitorAI**, your context-aware troubleshooting assistant. Ask me anything about the server state!</p>
+                <div class="chatbot-suggested-queries">
+                    <button class="chatbot-suggested-btn" data-query="Tell me about the CPU load">🖥️ CPU Load</button>
+                    <button class="chatbot-suggested-btn" data-query="Is memory usage high?">💾 RAM Health</button>
+                    <button class="chatbot-suggested-btn" data-query="Check storage space limits">💽 Disk Prediction</button>
+                    <button class="chatbot-suggested-btn" data-query="Show running processes">⚙️ Top Processes</button>
+                </div>
+            </div>
+        </div>
+        <div class="chatbot-footer">
+            <div class="chatbot-input-wrapper">
+                <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Ask MonitorAI Assistant..." autocomplete="off">
+            </div>
+            <button class="chatbot-send-btn" id="chatbotSendBtn" disabled>
+                <i class="fa-solid fa-paper-plane"></i>
+            </button>
         </div>
     </div>
 </div>

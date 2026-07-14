@@ -170,6 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Check health status elements
             const badge = document.getElementById('overallHealthBadge');
             const statusBox = document.getElementById('healthStatusBox');
+            const healthMsg = document.getElementById('healthMessage');
             if (badge && statusBox) {
                 // Remove existing classes
                 badge.className = 'badge px-3 py-2 fw-bold ';
@@ -187,6 +188,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     badge.classList.add('bg-danger');
                     badge.innerText = 'Critical';
                     statusBox.classList.add('border-danger-subtle');
+                }
+            }
+
+            if (healthMsg) {
+                if (data.is_remote) {
+                    healthMsg.innerHTML = `<span class="text-success fw-bold"><i class="fa-solid fa-circle-dot me-1 text-success"></i>Monitoring Laptop Telemetry: ${data.system.hostname}</span>`;
+                } else {
+                    healthMsg.innerHTML = `<span class="text-warning fw-semibold"><i class="fa-solid fa-triangle-exclamation me-1"></i>No laptop telemetry active. Showing Server Host metrics. Download <a href="/static/downloads/client_agent.py" download class="text-primary fw-bold text-decoration-underline mx-1">Agent Script</a> / <a href="/static/downloads/requirements.txt" download class="text-secondary fw-bold text-decoration-underline mx-1">Requirements</a> / <a href="/static/downloads/run_client.bat" download class="text-success fw-bold text-decoration-underline mx-1">One-Click Launcher</a> and run on your laptop.</span>`;
                 }
             }
 
@@ -211,6 +220,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const diskBar = document.getElementById('disk-progress-bar');
             diskBar.style.width = `${data.disk.percent}%`;
             adjustProgressBarColor(diskBar, data.disk.percent);
+            
+            // Update prediction details
+            const diskPred = document.getElementById('disk-prediction-val');
+            if (diskPred && data.disk.prediction) {
+                diskPred.innerText = data.disk.prediction;
+                diskPred.className = 'fw-semibold text-' + (data.disk.prediction_level || 'secondary');
+            }
 
             // Update Network speed cards
             document.getElementById('net-upload-val').innerText = `${data.network.upload_speed} KB/s`;
@@ -230,7 +246,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const procBody = document.getElementById('processes-table-body');
             if (procBody) {
                 procBody.innerHTML = '';
+                const hasActions = Array.from(document.querySelectorAll('th')).some(th => th.innerText.trim() === 'Actions');
                 data.processes.forEach(proc => {
+                    let actionsCell = '';
+                    if (hasActions) {
+                        actionsCell = `
+                            <td class="text-end">
+                                <button class="btn btn-sm btn-outline-danger py-0 px-2 kill-process-btn" data-pid="${proc.pid}" data-name="${proc.name}" style="font-size: 0.7rem;">
+                                    <i class="fa-solid fa-ban me-1"></i>Kill
+                                </button>
+                            </td>
+                        `;
+                    }
                     procBody.innerHTML += `
                         <tr>
                             <td><span class="badge bg-secondary">${proc.pid}</span></td>
@@ -238,8 +265,35 @@ document.addEventListener('DOMContentLoaded', () => {
                             <td>${proc.username}</td>
                             <td class="text-end fw-medium text-primary">${proc.cpu_percent}%</td>
                             <td class="text-end fw-medium text-info">${proc.memory_percent}%</td>
+                            ${actionsCell}
                         </tr>
                     `;
+                });
+
+                // Attach click listeners to processes
+                document.querySelectorAll('.kill-process-btn').forEach(btn => {
+                    btn.addEventListener('click', async (e) => {
+                        const pid = btn.getAttribute('data-pid');
+                        const name = btn.getAttribute('data-name');
+                        if (!confirm(`Are you sure you want to terminate process ${name} (PID: ${pid})?`)) return;
+                        try {
+                            const res = await fetch('/api/process/kill', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ pid: parseInt(pid) })
+                            });
+                            const result = await res.json();
+                            if (result.success) {
+                                alert(result.message);
+                                updateDashboardMetrics();
+                            } else {
+                                alert('Error: ' + result.message);
+                            }
+                        } catch (err) {
+                            console.error('Failed to kill process:', err);
+                            alert('Network error occurred.');
+                        }
+                    });
                 });
             }
             // Update AI recommendations list
@@ -403,6 +457,157 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateDashboardMetrics();
             });
         });
+    }
+
+    // ==========================================
+    // MonitorAI Diagnostic Chatbot Handler
+    // ==========================================
+    const chatbotLauncher = document.getElementById('chatbotLauncher');
+    const chatbotPanel = document.getElementById('chatbotPanel');
+    const chatbotCloseBtn = document.getElementById('chatbotCloseBtn');
+    const chatbotInput = document.getElementById('chatbotInput');
+    const chatbotSendBtn = document.getElementById('chatbotSendBtn');
+    const chatbotBody = document.getElementById('chatbotBody');
+
+    if (chatbotLauncher && chatbotPanel && chatbotCloseBtn) {
+        // Toggle panel
+        chatbotLauncher.addEventListener('click', () => {
+            chatbotPanel.classList.toggle('active');
+            chatbotLauncher.classList.toggle('active');
+            if (chatbotPanel.classList.contains('active')) {
+                chatbotInput.focus();
+            }
+        });
+
+        chatbotCloseBtn.addEventListener('click', () => {
+            chatbotPanel.classList.remove('active');
+            chatbotLauncher.classList.remove('active');
+        });
+
+        // Input validation
+        chatbotInput.addEventListener('input', () => {
+            chatbotSendBtn.disabled = !chatbotInput.value.trim();
+        });
+
+        // Enter key to send
+        chatbotInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && chatbotInput.value.trim()) {
+                sendChatMessage(chatbotInput.value.trim());
+            }
+        });
+
+        // Button click to send
+        chatbotSendBtn.addEventListener('click', () => {
+            if (chatbotInput.value.trim()) {
+                sendChatMessage(chatbotInput.value.trim());
+            }
+        });
+
+        // Suggested buttons click handler
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('chatbot-suggested-btn')) {
+                const query = e.target.getAttribute('data-query');
+                sendChatMessage(query);
+            }
+        });
+    }
+
+    function appendMessage(text, sender) {
+        if (!chatbotBody) return;
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `chatbot-message ${sender}`;
+        
+        if (sender === 'ai') {
+            msgDiv.innerHTML = formatMarkdown(text);
+        } else {
+            msgDiv.innerText = text;
+        }
+        
+        chatbotBody.appendChild(msgDiv);
+        chatbotBody.scrollTop = chatbotBody.scrollHeight;
+    }
+
+    function showTypingIndicator() {
+        if (!chatbotBody) return null;
+        const indicator = document.createElement('div');
+        indicator.className = 'chatbot-message ai typing-indicator-wrapper';
+        indicator.innerHTML = `
+            <div class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        `;
+        chatbotBody.appendChild(indicator);
+        chatbotBody.scrollTop = chatbotBody.scrollHeight;
+        return indicator;
+    }
+
+    async function sendChatMessage(text) {
+        if (!text) return;
+        
+        // Clear input
+        chatbotInput.value = '';
+        chatbotSendBtn.disabled = true;
+        
+        // Append user message
+        appendMessage(text, 'user');
+        
+        // Show typing indicator
+        const indicator = showTypingIndicator();
+        
+        try {
+            // Build the payload
+            const payload = {
+                message: text,
+                user_id: selectedUserId || null,
+                hostname: selectedHostname || null
+            };
+
+            const res = await fetch('/api/ai/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            
+            // Remove typing indicator
+            if (indicator) indicator.remove();
+            
+            if (data.success) {
+                appendMessage(data.response, 'ai');
+            } else {
+                appendMessage("Sorry, I encountered an issue querying the telemetry diagnostics system: " + data.message, 'ai');
+            }
+        } catch (err) {
+            if (indicator) indicator.remove();
+            console.error('Chat error:', err);
+            appendMessage("Connection error. Could not connect to the MonitorAI backend.", 'ai');
+        }
+    }
+
+    function formatMarkdown(text) {
+        let html = text;
+        // Escape HTML
+        html = html.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        // Title headers
+        html = html.replace(/^### (.*?)$/gm, '<h6 class="fw-bold mt-2 mb-1 text-dark-emphasis">$1</h6>');
+        // Bold tags
+        html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        // Pre-formatted code blocks
+        html = html.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
+        // Inline code
+        html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+        // List items
+        html = html.replace(/^\* (.*?)$/gm, '<li class="small">$1</li>');
+        html = html.replace(/^\d+\. (.*?)$/gm, '<li class="small">$1</li>');
+        // Wrap lists
+        html = html.replace(/<\/li>\n<li/g, '</li><li');
+        html = html.replace(/(<li.*?>.*?<\/li>)/g, '<ul class="mb-1 text-secondary-emphasis ps-3">$1</ul>');
+        html = html.replace(/<\/ul><ul class="mb-1 text-secondary-emphasis ps-3">/g, '');
+        // Line breaks
+        html = html.replace(/\n/g, '<br>');
+        return html;
     }
 
     // 5. Bootstrapper execution
