@@ -14,13 +14,17 @@ class Config:
     DB_PORT = os.environ.get('DB_PORT', '3306')
     DB_NAME = os.environ.get('DB_NAME', 'it_monitor_db')
     
-    # Standard SQLite fallback
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
-        'DATABASE_URL',
-        f"sqlite:///{os.path.join(os.path.abspath(os.path.dirname(__file__)), 'it_monitor_db.db')}"
-    )
-    # MySQL URI template (uncomment in environment if using MySQL):
-    # f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    # Standard SQLite fallback (Use /tmp inside Vercel serverless read-only container)
+    if os.environ.get('VERCEL') == '1':
+        SQLALCHEMY_DATABASE_URI = os.environ.get(
+            'DATABASE_URL',
+            'sqlite:////tmp/it_monitor_db.db'
+        )
+    else:
+        SQLALCHEMY_DATABASE_URI = os.environ.get(
+            'DATABASE_URL',
+            f"sqlite:///{os.path.join(os.path.abspath(os.path.dirname(__file__)), 'it_monitor_db.db')}"
+        )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
