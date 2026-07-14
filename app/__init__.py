@@ -49,8 +49,46 @@ def create_app(config_name='default'):
     with app.app_context():
         try:
             db.create_all()
+            
+            # Auto-seed default credentials if users are empty
+            from app.models.user import User
+            from app.models.setting import Setting
+            
+            if not User.query.filter_by(username="admin").first():
+                admin = User(username="admin", email="admin@monitor.com", is_admin=True)
+                admin.set_password("admin123")
+                db.session.add(admin)
+                db.session.commit()
+                
+                admin_setting = Setting(
+                    user_id=admin.id,
+                    cpu_threshold=90.0,
+                    ram_threshold=90.0,
+                    disk_threshold=95.0,
+                    refresh_interval=5,
+                    email_address="admin@monitor.com"
+                )
+                db.session.add(admin_setting)
+                db.session.commit()
+                
+            if not User.query.filter_by(username="client").first():
+                client = User(username="client", email="client@monitor.com", is_admin=False)
+                client.set_password("client123")
+                db.session.add(client)
+                db.session.commit()
+                
+                client_setting = Setting(
+                    user_id=client.id,
+                    cpu_threshold=90.0,
+                    ram_threshold=90.0,
+                    disk_threshold=95.0,
+                    refresh_interval=5,
+                    email_address="client@monitor.com"
+                )
+                db.session.add(client_setting)
+                db.session.commit()
         except Exception as e:
-            app.logger.warning(f"Could not connect to database on startup to auto-create tables: {e}")
+            app.logger.warning(f"Could not connect to database or seed on startup: {e}")
 
 
     # Register Blueprints
