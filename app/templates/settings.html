@@ -67,9 +67,14 @@
                     </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary fw-semibold px-4 py-2">
-                    <i class="fa-solid fa-floppy-disk me-2"></i>Save Configuration Changes
-                </button>
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <button type="submit" class="btn btn-primary fw-semibold px-4 py-2">
+                        <i class="fa-solid fa-floppy-disk me-2"></i>Save Configuration Changes
+                    </button>
+                    <button type="button" class="btn btn-outline-info fw-semibold px-4 py-2" id="testEmailBtn">
+                        <i class="fa-solid fa-paper-plane me-2"></i>Send Test Email Notification
+                    </button>
+                </div>
             </form>
         </div>
     </div>
@@ -82,5 +87,30 @@
     function updateBadge(type, val) {
         document.getElementById(type + '-badge').innerText = val + '%';
     }
+
+    // Trigger test alert email
+    document.getElementById('testEmailBtn')?.addEventListener('click', async () => {
+        const emailInput = document.getElementById('email_address').value;
+        const btn = document.getElementById('testEmailBtn');
+        const origText = btn.innerHTML;
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Dispatching...';
+
+        try {
+            const res = await fetch('/settings/test-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+                body: JSON.stringify({ email_address: emailInput })
+            });
+            const result = await res.json();
+            alert((result.success ? '✅ ' : '❌ ') + result.message);
+        } catch (err) {
+            alert('❌ Network error occurred while initiating test email.');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = origText;
+        }
+    });
 </script>
 {% endblock %}

@@ -68,3 +68,25 @@ class SettingsController:
         except Exception as e:
             db.session.rollback()
             return False, f"Failed to commit settings: {str(e)}"
+
+    @staticmethod
+    def send_test_email(user, email_address):
+        """Dispatches a test alert email to verify SMTP configuration and recipient setup."""
+        email_address = (email_address or '').strip()
+        if not email_address:
+            settings = Setting.query.filter_by(user_id=user.id).first()
+            if settings and settings.email_address:
+                email_address = settings.email_address
+            else:
+                email_address = user.email
+
+        if not email_address or "@" not in email_address:
+            return False, "Please configure a valid recipient email address first."
+
+        from app.utilities.mail_helper import MailHelper
+        success = MailHelper.send_alert_email("TEST ALARM", 95.5, 90.0, target_email=email_address)
+        if success:
+            return True, f"Test alert email successfully dispatched to {email_address}!"
+        else:
+            return False, "Failed to dispatch test alert email. Please check SMTP settings."
+

@@ -31,3 +31,21 @@ def update_settings():
         flash(message, "danger")
 
     return redirect(url_for('settings.settings_home'))
+
+@settings_bp.route('/test-email', methods=['POST'])
+@login_required
+def test_email():
+    """Endpoint to trigger a test alert email notification."""
+    email_address = request.form.get('email_address') or (request.json.get('email_address') if request.is_json else '')
+    success, message = SettingsController.send_test_email(current_user, email_address)
+    
+    if request.is_json or request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from flask import jsonify
+        return jsonify({'success': success, 'message': message}), 200 if success else 400
+
+    if success:
+        flash(message, "success")
+    else:
+        flash(message, "danger")
+    return redirect(url_for('settings.settings_home'))
+

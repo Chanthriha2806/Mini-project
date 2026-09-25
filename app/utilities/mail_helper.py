@@ -7,7 +7,7 @@ class MailHelper:
     """Helper service to format and transmit email alerts regarding resource usage threshold breaches."""
 
     @staticmethod
-    def send_alert_email(metric_type, value, threshold):
+    def send_alert_email(metric_type, value, threshold, target_email=None):
         """Dispatches alert notifications via SMTP configuration when threshold is breached."""
         # Retrieve target configuration settings
         try:
@@ -16,7 +16,8 @@ class MailHelper:
             
             # Use general settings target if available
             settings = Setting.query.order_by(Setting.id.asc()).first()
-            recipient = settings.email_address if settings and settings.email_address else current_app.config.get('MAIL_USERNAME')
+            recipient = target_email or (settings.email_address if settings and settings.email_address else current_app.config.get('MAIL_USERNAME'))
+
             
             if not recipient:
                 logging.warning("No recipient email address configured. Skipping alert email dispatch.")
