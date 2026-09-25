@@ -2,55 +2,55 @@
    Executive Midnight Slate & Cool Cyan Theme & Micro-Interaction Styling
    ========================================================================== */
 
-/* Core CSS Tokens & Color Palette (Light Mode - Clean Ice Porcelain) */
+/* Core CSS Tokens & Color Palette (Light Mode - Clean Sapphire Porcelain) */
 :root {
     --bg-primary: #f8fafc;
     --bg-secondary: #ffffff;
-    --bg-sidebar: linear-gradient(180deg, #0f172a 0%, #1e293b 65%, #0f172a 100%);
+    --bg-sidebar: linear-gradient(180deg, #090d16 0%, #1e293b 65%, #090d16 100%);
     --sidebar-text: #94a3b8;
-    --sidebar-active-bg: linear-gradient(90deg, rgba(56, 189, 248, 0.18) 0%, rgba(2, 132, 199, 0.1) 100%);
+    --sidebar-active-bg: linear-gradient(90deg, rgba(56, 189, 248, 0.22) 0%, rgba(99, 102, 241, 0.15) 100%);
     --sidebar-active-text: #38bdf8;
     --sidebar-active-border: #38bdf8;
     --text-primary: #0f172a;
     --text-secondary: #334155;
     --text-muted: #64748b;
     --card-bg: rgba(255, 255, 255, 0.94);
-    --card-shadow: 0 10px 30px -5px rgba(2, 132, 199, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+    --card-shadow: 0 15px 35px -5px rgba(2, 132, 199, 0.12), 0 4px 12px -2px rgba(99, 102, 241, 0.08);
     --card-border: 1px solid rgba(226, 232, 240, 0.9);
-    --card-hover-border: rgba(56, 189, 248, 0.65);
+    --card-hover-border: rgba(56, 189, 248, 0.75);
     --accent: #0284c7;
     --accent-hover: #0369a1;
-    --accent-glow: rgba(2, 132, 199, 0.35);
+    --accent-glow: rgba(56, 189, 248, 0.45);
     --success: #10b981;
     --warning: #f59e0b;
     --danger: #ef4444;
     --border-color: #e2e8f0;
     --nav-height: 70px;
     --sidebar-width: 260px;
-    --spotlight-color: rgba(2, 132, 199, 0.12);
+    --spotlight-color: rgba(56, 189, 248, 0.14);
 }
 
-/* Dark Mode Tokens Override - Executive Midnight Slate & Cool Cyan (Activated via [data-theme="dark"] on <html>) */
+/* Dark Mode Tokens Override - Futuristic Cyber Obsidian & Electric Cyan/Violet */
 [data-theme="dark"] {
-    --bg-primary: #0b1120;
-    --bg-secondary: #0f172a;
-    --bg-sidebar: #070d19;
+    --bg-primary: #070b14;
+    --bg-secondary: #0c1222;
+    --bg-sidebar: #04070e;
     --sidebar-text: #94a3b8;
-    --sidebar-active-bg: linear-gradient(90deg, rgba(56, 189, 248, 0.2) 0%, rgba(2, 132, 199, 0.12) 100%);
+    --sidebar-active-bg: linear-gradient(90deg, rgba(56, 189, 248, 0.25) 0%, rgba(139, 92, 246, 0.2) 100%);
     --sidebar-active-text: #38bdf8;
     --sidebar-active-border: #38bdf8;
     --text-primary: #f8fafc;
     --text-secondary: #cbd5e1;
     --text-muted: #38bdf8;
-    --card-bg: rgba(15, 23, 42, 0.88);
-    --card-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.75), 0 0 25px rgba(56, 189, 248, 0.15);
-    --card-border: 1px solid rgba(56, 189, 248, 0.22);
-    --card-hover-border: rgba(56, 189, 248, 0.7);
+    --card-bg: rgba(12, 18, 34, 0.88);
+    --card-shadow: 0 25px 55px -10px rgba(0, 0, 0, 0.85), 0 0 30px rgba(56, 189, 248, 0.25);
+    --card-border: 1px solid rgba(56, 189, 248, 0.3);
+    --card-hover-border: rgba(139, 92, 246, 0.85);
     --accent: #38bdf8;
     --accent-hover: #7dd3fc;
-    --accent-glow: rgba(56, 189, 248, 0.45);
+    --accent-glow: rgba(56, 189, 248, 0.55);
     --border-color: #1e293b;
-    --spotlight-color: rgba(56, 189, 248, 0.18);
+    --spotlight-color: rgba(139, 92, 246, 0.22);
 }
 
 /* Reset and Layout Scaffolding */
@@ -1220,13 +1220,20 @@ body {
 }
 
 .auth-form-card {
+    position: relative;
     background: var(--card-bg);
     border: var(--card-border);
     border-radius: 28px;
     padding: 2.25rem 2.5rem;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.3), 0 0 35px var(--accent-glow);
-    backdrop-filter: blur(20px);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.35), 0 0 40px var(--accent-glow);
+    backdrop-filter: blur(24px);
     animation: cardEntrance 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.auth-form-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 30px 70px rgba(0, 0, 0, 0.4), 0 0 50px rgba(139, 92, 246, 0.35);
 }
 
 @keyframes cardEntrance {
@@ -1239,4 +1246,83 @@ body {
         transform: translateY(0) scale(1);
     }
 }
+
+/* Floating Diagnostics Halo Ring Behind Laptop */
+.laptop-halo-ring {
+    position: absolute;
+    width: 360px;
+    height: 230px;
+    border-radius: 30px;
+    border: 2px solid rgba(56, 189, 248, 0.35);
+    animation: ringPulseGlow 3.5s infinite cubic-bezier(0.45, 0, 0.55, 1);
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes ringPulseGlow {
+    0% {
+        transform: scale(0.92);
+        opacity: 0.9;
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.6);
+    }
+    50% {
+        transform: scale(1.12);
+        opacity: 0.5;
+        box-shadow: 0 0 25px 10px rgba(139, 92, 246, 0.4);
+    }
+    100% {
+        transform: scale(1.22);
+        opacity: 0;
+        box-shadow: 0 0 40px 20px rgba(56, 189, 248, 0);
+    }
+}
+
+/* Input Group Icon Micro-Interactions */
+.input-group input:focus {
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.3) !important;
+    border-color: #38bdf8 !important;
+    transform: scale(1.01);
+}
+
+.input-group-text {
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.input-group:focus-within .input-group-text {
+    color: #38bdf8 !important;
+    transform: scale(1.15) rotate(5deg);
+}
+
+/* Gradient Sheen Sweep Button */
+.btn-primary {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #0284c7 0%, #38bdf8 50%, #8b5cf6 100%) !important;
+    background-size: 200% auto !important;
+    border: none !important;
+    transition: all 0.35s ease !important;
+}
+
+.btn-primary:hover {
+    background-position: right center !important;
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+}
+
+/* Animated Code Terminal Blinking Cursor */
+.terminal-cursor {
+    display: inline-block;
+    width: 7px;
+    height: 12px;
+    background: #38bdf8;
+    margin-left: 3px;
+    animation: cursorBlink 1s infinite step-start;
+    vertical-align: middle;
+}
+
+@keyframes cursorBlink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
 
