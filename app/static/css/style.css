@@ -1009,11 +1009,11 @@ body {
 
 .auth-split-grid {
     width: 100%;
-    max-width: 1150px;
+    max-width: 1240px;
     margin: auto;
     display: grid;
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 3rem;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 2rem;
     align-items: center;
     position: relative;
     z-index: 2;
@@ -1022,7 +1022,8 @@ body {
 @media (max-width: 991px) {
     .auth-split-grid {
         grid-template-columns: 1fr;
-        max-width: 520px;
+        max-width: 540px;
+        gap: 2.5rem;
     }
     .auth-hero-showcase {
         text-align: center;

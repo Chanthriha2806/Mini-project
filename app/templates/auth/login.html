@@ -144,13 +144,16 @@
                     <span class="d-block text-dark-emphasis fw-bold mb-1" style="font-size: 0.85rem;">
                         <i class="fa-solid fa-laptop text-primary me-1"></i>Monitor Your Laptop
                     </span>
-                    <span class="d-block text-secondary mb-2" style="font-size: 0.75rem;">Download script to report live CPU/RAM metrics:</span>
+                    <span class="d-block text-secondary mb-2" style="font-size: 0.75rem;">Download these files to report live CPU/RAM metrics:</span>
                     <div class="d-flex justify-content-center gap-1.5 flex-wrap">
                         <a href="{{ url_for('static', filename='downloads/client_agent.py') }}" class="btn btn-sm btn-outline-primary fw-semibold px-2 py-1" download style="font-size: 0.75rem;">
-                            <i class="fa-brands fa-python me-1"></i>Agent Script
+                            <i class="fa-brands fa-python me-1"></i>1. Agent Script
+                        </a>
+                        <a href="{{ url_for('static', filename='downloads/requirements.txt') }}" class="btn btn-sm btn-outline-secondary fw-semibold px-2 py-1" download style="font-size: 0.75rem;">
+                            <i class="fa-solid fa-list me-1"></i>2. Requirements
                         </a>
                         <a href="{{ url_for('static', filename='downloads/run_client.bat') }}" class="btn btn-sm btn-outline-success fw-semibold px-2 py-1" download style="font-size: 0.75rem;">
-                            <i class="fa-solid fa-bolt me-1"></i>1-Click Launcher
+                            <i class="fa-solid fa-bolt me-1"></i>3. One-Click Launcher
                         </a>
                     </div>
                 </div>
