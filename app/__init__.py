@@ -43,7 +43,10 @@ def create_app(config_name='default'):
 
     @login_manager.user_loader
     def load_user(user_id):
-        return User.query.get(int(user_id))
+        try:
+            return db.session.get(User, int(user_id))
+        except Exception:
+            return None
 
     # Attempt to auto-create tables on startup
     with app.app_context():
@@ -54,7 +57,8 @@ def create_app(config_name='default'):
             from app.models.user import User
             from app.models.setting import Setting
             
-            if not User.query.filter_by(username="admin").first():
+            admin = db.session.query(User).filter_by(username="admin").first()
+            if not admin:
                 admin = User(username="admin", email="admin@monitor.com", is_admin=True)
                 admin.set_password("admin123")
                 db.session.add(admin)
@@ -71,7 +75,8 @@ def create_app(config_name='default'):
                 db.session.add(admin_setting)
                 db.session.commit()
                 
-            if not User.query.filter_by(username="client").first():
+            client = db.session.query(User).filter_by(username="client").first()
+            if not client:
                 client = User(username="client", email="client@monitor.com", is_admin=False)
                 client.set_password("client123")
                 db.session.add(client)
@@ -88,6 +93,7 @@ def create_app(config_name='default'):
                 db.session.add(client_setting)
                 db.session.commit()
         except Exception as e:
+            db.session.rollback()
             app.logger.warning(f"Could not connect to database or seed on startup: {e}")
 
 
