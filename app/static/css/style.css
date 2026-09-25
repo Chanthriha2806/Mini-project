@@ -1,44 +1,44 @@
-/* Core CSS Tokens & Variables (Root defines Light Theme by default) */
+/* Core CSS Tokens & Variables (Cooling Executive Theme) */
 :root {
-    --bg-primary: #f4f6f9;
+    --bg-primary: #f8fafc;
     --bg-secondary: #ffffff;
-    --bg-sidebar: linear-gradient(180deg, #1f2937 0%, #111827 100%);
-    --sidebar-text: #9ca3af;
-    --sidebar-active-bg: rgba(255, 255, 255, 0.08);
-    --sidebar-active-text: #ffffff;
-    --text-primary: #1f2937;
-    --text-secondary: #4b5563;
-    --text-muted: #9ca3af;
-    --card-bg: #ffffff;
-    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-    --card-border: 1px solid #e5e7eb;
-    --accent: #3b82f6;
-    --accent-hover: #2563eb;
+    --bg-sidebar: linear-gradient(180deg, #0f172a 0%, #090d16 100%);
+    --sidebar-text: #94a3b8;
+    --sidebar-active-bg: rgba(56, 189, 248, 0.12);
+    --sidebar-active-text: #38bdf8;
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #64748b;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --card-shadow: 0 10px 25px -5px rgba(14, 165, 233, 0.07), 0 8px 10px -6px rgba(0, 0, 0, 0.03);
+    --card-border: 1px solid #e2e8f0;
+    --accent: #0284c7;
+    --accent-hover: #0369a1;
     --success: #10b981;
     --warning: #f59e0b;
     --danger: #ef4444;
-    --border-color: #e5e7eb;
+    --border-color: #e2e8f0;
     --nav-height: 70px;
     --sidebar-width: 260px;
 }
 
 /* Dark Mode Tokens Override (Activated via [data-theme="dark"] on <html>) */
 [data-theme="dark"] {
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --bg-sidebar: #0f172a;
+    --bg-primary: #070b14;
+    --bg-secondary: #0f172a;
+    --bg-sidebar: #070b14;
     --sidebar-text: #94a3b8;
-    --sidebar-active-bg: #1e293b;
-    --sidebar-active-text: #3b82f6;
+    --sidebar-active-bg: rgba(56, 189, 248, 0.15);
+    --sidebar-active-text: #38bdf8;
     --text-primary: #f8fafc;
     --text-secondary: #cbd5e1;
     --text-muted: #64748b;
-    --card-bg: #1e293b;
-    --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
-    --card-border: 1px solid #334155;
-    --accent: #3b82f6;
-    --accent-hover: #60a5fa;
-    --border-color: #334155;
+    --card-bg: #0f172a;
+    --card-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.5), 0 0 20px rgba(56, 189, 248, 0.05);
+    --card-border: 1px solid #1e293b;
+    --accent: #38bdf8;
+    --accent-hover: #7dd3fc;
+    --border-color: #1e293b;
 }
 
 /* Reset and Layout Scaffolding */
@@ -68,8 +68,8 @@ body {
 }
 
 .sidebar .brand {
-    font-size: 1.25rem;
-    font-weight: 700;
+    font-size: 1.35rem;
+    font-weight: 800;
     color: #ffffff;
     text-decoration: none;
     display: flex;
@@ -77,6 +77,7 @@ body {
     gap: 0.75rem;
     margin-bottom: 2rem;
     padding-left: 0.5rem;
+    letter-spacing: -0.02em;
 }
 
 .sidebar-nav {
@@ -96,19 +97,21 @@ body {
     padding: 0.75rem 1rem;
     color: var(--sidebar-text);
     text-decoration: none;
-    border-radius: 8px;
+    border-radius: 10px;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
 }
 
 .sidebar-nav-link:hover {
     color: #ffffff;
     background-color: var(--sidebar-active-bg);
+    transform: translateX(4px);
 }
 
 .sidebar-nav-link.active {
     color: var(--sidebar-active-text);
     background-color: var(--sidebar-active-bg);
+    font-weight: 600;
 }
 
 .sidebar-footer {
@@ -138,6 +141,7 @@ body {
     top: 0;
     z-index: 999;
     transition: background-color 0.3s ease, border-color 0.3s ease;
+    backdrop-filter: blur(12px);
 }
 
 .main-content {
@@ -145,15 +149,17 @@ body {
     flex-grow: 1;
 }
 
-/* Cards & Panel Styling */
+/* Glassmorphism & High-Tech Cards */
 .metric-card {
     background-color: var(--card-bg);
     border: var(--card-border);
-    border-radius: 12px;
+    border-radius: 16px;
     box-shadow: var(--card-shadow);
     padding: 1.5rem;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease, border-color 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     height: 100%;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
 }
 
 .col-12 > .metric-card,
@@ -162,32 +168,110 @@ body {
     min-height: 0 !important;
 }
 
-.metric-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+.telemetry-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 30px -5px rgba(56, 189, 248, 0.15), 0 10px 15px -5px rgba(0, 0, 0, 0.05);
+    border-color: rgba(56, 189, 248, 0.35);
 }
 
 .card-title-meta {
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: var(--text-muted);
-    margin-bottom: 0.5rem;
-}
-
-.card-value {
-    font-size: 1.875rem;
+    font-size: 0.78rem;
     font-weight: 700;
-    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
 }
 
-/* Progress bar customizations */
-.progress {
-    height: 8px;
-    border-radius: 4px;
-    background-color: var(--bg-primary);
+.card-value-hero {
+    font-size: 2.25rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.1;
+}
+
+/* Icon Avatar Badges */
+.card-icon-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.icon-avatar.gradient-cyan {
+    background: linear-gradient(135deg, #0284c7 0%, #6366f1 100%);
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+}
+
+/* Executive Control Select Bar */
+.device-selector-card {
+    background: linear-gradient(135deg, rgba(2, 132, 199, 0.04) 0%, rgba(99, 102, 241, 0.04) 100%);
+    border: 1px solid rgba(56, 189, 248, 0.25) !important;
+}
+
+.custom-executive-select {
+    border-radius: 10px;
+    padding: 0.6rem 2.25rem 0.6rem 1rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 1.5px solid var(--accent);
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.1);
+    transition: all 0.25s ease;
+    cursor: pointer;
+    min-width: 280px;
+}
+
+.custom-executive-select:focus {
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
+    border-color: var(--accent);
+}
+
+.live-beacon-pill {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.65rem;
+    border-radius: 20px;
+    background: rgba(16, 185, 129, 0.12);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.25);
+    display: inline-flex;
+    align-items: center;
+}
+
+.pulse-dot {
+    animation: pulseDot 2s infinite;
+}
+
+@keyframes pulseDot {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.85); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* Progress Bar Customizations */
+.progress-hero {
+    height: 10px;
+    border-radius: 6px;
+    background: rgba(148, 163, 184, 0.15);
     overflow: hidden;
+}
+
+.progress-bar {
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease;
+    border-radius: 6px;
 }
 
 /* Center card for Auth Layouts (login/register) */
