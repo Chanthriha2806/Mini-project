@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, request, flash
+from flask import Blueprint, render_template, redirect, url_for, request, flash, session, make_response
 from flask_login import login_required, current_user
 from app.controllers.auth_controller import AuthController
 
@@ -60,13 +60,17 @@ def login():
 
     return render_template('auth/login.html')
 
-@auth_bp.route('/logout')
-@login_required
+@auth_bp.route('/logout', methods=['GET', 'POST'])
 def logout():
-    """Ends user session and redirects to login."""
+    """Ends user session and redirects to login with cache-control headers."""
     AuthController.logout_user_session()
-    flash("You have been logged out.", "info")
-    return redirect(url_for('auth.login'))
+    session.clear()
+    flash("You have been logged out successfully.", "info")
+    response = make_response(redirect(url_for('auth.login')))
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+    return response
 
 @auth_bp.route('/profile', methods=['GET', 'POST'])
 @login_required

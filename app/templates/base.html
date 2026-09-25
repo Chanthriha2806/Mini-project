@@ -97,21 +97,51 @@
                 <h4 class="mb-0 fw-bold">{% block page_title %}Dashboard{% endblock %}</h4>
             </div>
 
-            <div class="d-flex align-items-center gap-4">
+            <div class="d-flex align-items-center gap-3">
                 <!-- Theme Toggle -->
                 <button class="theme-toggle-btn" id="themeToggleBtn" title="Toggle Theme">
                     <i class="fa-solid fa-moon" id="themeIcon"></i>
                 </button>
                 
-                <!-- User Summary -->
-                <div class="d-flex align-items-center gap-2">
-                    <div class="avatar bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px;">
-                        {{ current_user.username[0] | upper }}
-                    </div>
-                    <div class="d-none d-md-block">
-                        <div class="fw-semibold lh-1">{{ current_user.username }}</div>
-                        <small class="text-secondary" style="font-size: 0.75rem;">Admin</small>
-                    </div>
+                <!-- User Summary Dropdown -->
+                <div class="dropdown">
+                    <button class="btn border-0 p-1 d-flex align-items-center gap-2 text-start rounded-3 shadow-none dropdown-toggle-custom" type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="background: rgba(255, 255, 255, 0.05); cursor: pointer;">
+                        <div class="avatar text-white rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 38px; height: 38px; background: linear-gradient(135deg, var(--accent-color), var(--primary-color)) !important;">
+                            {{ current_user.username[0] | upper if current_user and current_user.username else 'U' }}
+                        </div>
+                        <div class="d-none d-md-block pe-1">
+                            <div class="fw-semibold lh-1 text-main fs-6" style="color: var(--text-primary);">{{ current_user.username if current_user else 'User' }}</div>
+                            <small class="text-secondary" style="font-size: 0.72rem;">{{ 'Admin' if current_user and current_user.is_admin else 'Client' }}</small>
+                        </div>
+                        <i class="fa-solid fa-chevron-down text-secondary small pe-1"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 p-2" aria-labelledby="userMenuDropdown" style="background: var(--card-bg); border: 1px solid var(--border-color) !important; min-width: 210px; backdrop-filter: blur(16px);">
+                        <li>
+                            <div class="px-3 py-2 border-bottom mb-1" style="border-color: var(--border-color) !important;">
+                                <p class="mb-0 fw-bold fs-6" style="color: var(--text-primary);">{{ current_user.username }}</p>
+                                <small class="text-secondary text-break">{{ current_user.email }}</small>
+                            </div>
+                        </li>
+                        <li>
+                            <a class="dropdown-item rounded-2 d-flex align-items-center gap-2 py-2" href="{{ url_for('auth.profile') }}">
+                                <i class="fa-solid fa-user-gear text-primary"></i>
+                                <span>Profile & Account</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item rounded-2 d-flex align-items-center gap-2 py-2" href="{{ url_for('settings.settings_home') }}">
+                                <i class="fa-solid fa-gears text-secondary"></i>
+                                <span>Settings</span>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider opacity-10 my-1"></li>
+                        <li>
+                            <a class="dropdown-item rounded-2 d-flex align-items-center gap-2 py-2 text-danger fw-semibold" href="{{ url_for('auth.logout') }}">
+                                <i class="fa-solid fa-right-from-bracket text-danger"></i>
+                                <span>Logout</span>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </header>
