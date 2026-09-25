@@ -127,6 +127,49 @@
             </div>
         </main>
     </div>
+
+    <!-- Floating AI Chatbot Widget (Global across all views) -->
+    <div class="chatbot-widget">
+        <div class="chatbot-tooltip-bubble" id="chatbotTooltip">
+            <i class="fa-solid fa-sparkles text-warning me-1"></i>
+            <span>Need Help? Ask MonitorAI!</span>
+            <div class="bubble-arrow"></div>
+        </div>
+        <button class="chatbot-launcher" id="chatbotLauncher" title="MonitorAI Diagnostic Chatbot">
+            <i class="fa-solid fa-robot"></i>
+        </button>
+        <div class="chatbot-panel" id="chatbotPanel">
+            <div class="chatbot-header">
+                <div class="chatbot-header-title">
+                    <i class="fa-solid fa-robot fs-5"></i>
+                    <div>
+                        <h6 class="fw-bold text-white mb-0">MonitorAI Agent</h6>
+                        <span class="text-white-50" style="font-size: 0.7rem;">Diagnostics Assistant</span>
+                    </div>
+                </div>
+                <button class="chatbot-close-btn" id="chatbotCloseBtn">&times;</button>
+            </div>
+            <div class="chatbot-body" id="chatbotBody">
+                <div class="chatbot-message ai">
+                    <p>Hello! I am **MonitorAI**, your context-aware troubleshooting assistant. Ask me anything about the server state!</p>
+                    <div class="chatbot-suggested-queries">
+                        <button class="chatbot-suggested-btn" data-query="Tell me about the CPU load">🖥️ CPU Load</button>
+                        <button class="chatbot-suggested-btn" data-query="Is memory usage high?">💾 RAM Health</button>
+                        <button class="chatbot-suggested-btn" data-query="Check storage space limits">💽 Disk Prediction</button>
+                        <button class="chatbot-suggested-btn" data-query="Show running processes">⚙️ Top Processes</button>
+                    </div>
+                </div>
+            </div>
+            <div class="chatbot-footer">
+                <div class="chatbot-input-wrapper">
+                    <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Ask MonitorAI Assistant..." autocomplete="off">
+                </div>
+                <button class="chatbot-send-btn" id="chatbotSendBtn" disabled>
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
     
     {% else %}
     <!-- Guest Layout -->
@@ -184,6 +227,130 @@
                 card.style.setProperty('--mouse-y', `${y}px`);
             });
         });
+
+        // Global Chatbot & 10-Second Tooltip Animation Cycle Handler
+        (function() {
+            const chatbotLauncher = document.getElementById('chatbotLauncher');
+            const chatbotPanel = document.getElementById('chatbotPanel');
+            const chatbotCloseBtn = document.getElementById('chatbotCloseBtn');
+            const chatbotInput = document.getElementById('chatbotInput');
+            const chatbotSendBtn = document.getElementById('chatbotSendBtn');
+            const chatbotBody = document.getElementById('chatbotBody');
+            const chatbotTooltip = document.getElementById('chatbotTooltip');
+
+            if (chatbotTooltip) {
+                function triggerTooltipCycle() {
+                    if (chatbotPanel && chatbotPanel.classList.contains('active')) {
+                        chatbotTooltip.classList.remove('show');
+                        return;
+                    }
+                    chatbotTooltip.classList.add('show');
+                    setTimeout(() => {
+                        chatbotTooltip.classList.remove('show');
+                    }, 5000);
+                }
+
+                // Initial popup after 2 seconds
+                setTimeout(triggerTooltipCycle, 2000);
+
+                // Repeat: 5s visible + 10s hidden = 15s cycle (10 seconds off between popups!)
+                setInterval(triggerTooltipCycle, 15000);
+
+                chatbotTooltip.addEventListener('click', () => {
+                    if (chatbotPanel && chatbotLauncher) {
+                        chatbotPanel.classList.add('active');
+                        chatbotLauncher.classList.add('active');
+                        chatbotTooltip.classList.remove('show');
+                        if (chatbotInput) chatbotInput.focus();
+                    }
+                });
+            }
+
+            if (chatbotLauncher && chatbotPanel && chatbotCloseBtn) {
+                chatbotLauncher.addEventListener('click', () => {
+                    chatbotPanel.classList.toggle('active');
+                    chatbotLauncher.classList.toggle('active');
+                    if (chatbotPanel.classList.contains('active')) {
+                        if (chatbotTooltip) chatbotTooltip.classList.remove('show');
+                        if (chatbotInput) chatbotInput.focus();
+                    }
+                });
+
+                chatbotCloseBtn.addEventListener('click', () => {
+                    chatbotPanel.classList.remove('active');
+                    chatbotLauncher.classList.remove('active');
+                });
+
+                if (chatbotInput && chatbotSendBtn) {
+                    chatbotInput.addEventListener('input', () => {
+                        chatbotSendBtn.disabled = !chatbotInput.value.trim();
+                    });
+
+                    chatbotInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter' && chatbotInput.value.trim()) {
+                            sendGlobalChatMessage(chatbotInput.value.trim());
+                        }
+                    });
+
+                    chatbotSendBtn.addEventListener('click', () => {
+                        if (chatbotInput.value.trim()) {
+                            sendGlobalChatMessage(chatbotInput.value.trim());
+                        }
+                    });
+
+                    document.addEventListener('click', (e) => {
+                        if (e.target.classList.contains('chatbot-suggested-btn')) {
+                            const query = e.target.getAttribute('data-query');
+                            sendGlobalChatMessage(query);
+                        }
+                    });
+                }
+            }
+
+            function appendGlobalMsg(text, sender) {
+                if (!chatbotBody) return;
+                const msgDiv = document.createElement('div');
+                msgDiv.className = `chatbot-message ${sender}`;
+                if (sender === 'ai') {
+                    let html = text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    html = html.replace(/^### (.*?)$/gm, '<h6 class="fw-bold mt-2 mb-1 text-dark-emphasis">$1</h6>');
+                    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                    html = html.replace(/`(.*?)`/g, '<code>$1</code>');
+                    html = html.replace(/\n/g, '<br>');
+                    msgDiv.innerHTML = html;
+                } else {
+                    msgDiv.innerText = text;
+                }
+                chatbotBody.appendChild(msgDiv);
+                chatbotBody.scrollTop = chatbotBody.scrollHeight;
+            }
+
+            async function sendGlobalChatMessage(text) {
+                if (!text || !chatbotInput) return;
+                chatbotInput.value = '';
+                if (chatbotSendBtn) chatbotSendBtn.disabled = true;
+                
+                appendGlobalMsg(text, 'user');
+                
+                try {
+                    const res = await fetch('/api/ai/chat', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: text })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        appendGlobalMsg(data.response, 'ai');
+                    } else {
+                        appendGlobalMsg("Sorry, I encountered an issue querying the system: " + data.message, 'ai');
+                    }
+                } catch (err) {
+                    console.error('Chat error:', err);
+                    appendGlobalMsg("Connection error. Could not connect to MonitorAI backend.", 'ai');
+                }
+            }
+        })();
     </script>
     {% block scripts %}{% endblock %}
 </body>
