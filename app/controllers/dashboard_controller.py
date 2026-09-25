@@ -51,12 +51,15 @@ class DashboardController:
 
             clients_list = DashboardController.get_admin_clients_summary(user)
 
+        tickets_list = DashboardController.get_tickets(user)
+
         return {
             'settings': settings,
             'active_alerts': active_alerts,
             'recent_alerts': recent_alerts,
             'devices': devices,
-            'clients_list': clients_list
+            'clients_list': clients_list,
+            'tickets_list': tickets_list
         }
 
     @classmethod
@@ -692,5 +695,70 @@ class DashboardController:
             response += f"* ⚙ *\"Show running processes\"*\n"
             response += f"* 🌐 *\"Check network speed status\"*\n"
         return response
+
+    @staticmethod
+    def create_ticket(user, subject, description):
+        """Creates a new support issue ticket raised by a client."""
+        if not subject or not description:
+            return False, "Subject and description are required to raise a ticket."
+        try:
+            from app.models.ticket import Ticket
+            new_ticket = Ticket(
+                user_id=user.id,
+                subject=subject.strip(),
+                description=description.strip(),
+                status='Open'  # Default Open (RED priority indication!)
+            )
+            db.session.add(new_ticket)
+            db.session.commit()
+            return True, f"Ticket #{new_ticket.id} submitted successfully!"
+        except Exception as e:
+            db.session.rollback()
+            return False, f"Failed to submit ticket: {str(e)}"
+
+    @staticmethod
+    def get_tickets(user):
+        """Fetches support tickets. For Admin, returns all tickets (Open/Red status prioritized). For Client, returns user tickets."""
+        try:
+            from app.models.ticket import Ticket
+            if user.is_admin:
+                tickets = Ticket.query.order_by(
+                    db.case(
+                        (Ticket.status == 'Open', 1),
+                        (Ticket.status == 'In Progress', 2),
+                        (Ticket.status == 'Resolved', 3),
+                        (Ticket.status == 'Closed', 4),
+                        else_=5
+                    ),
+                    Ticket.created_at.desc()
+                ).all()
+            else:
+                tickets = Ticket.query.filter_by(user_id=user.id).order_by(Ticket.created_at.desc()).all()
+            return tickets
+        except Exception:
+            return []
+
+    @staticmethod
+    def update_ticket_status(admin_user, ticket_id, new_status):
+        """Updates support ticket status (Open [RED], In Progress [ORANGE], Resolved [GREEN], Closed [GREY])."""
+        if not admin_user.is_admin:
+            return False, "Access denied. Only Administrators can update ticket status."
+            
+        allowed_statuses = ['Open', 'In Progress', 'Resolved', 'Closed']
+        if new_status not in allowed_statuses:
+            return False, f"Invalid status '{new_status}'. Allowed: {', '.join(allowed_statuses)}"
+            
+        try:
+            from app.models.ticket import Ticket
+            ticket = Ticket.query.get(ticket_id)
+            if not ticket:
+                return False, f"Ticket #{ticket_id} not found."
+                
+            ticket.status = new_status
+            db.session.commit()
+            return True, f"Ticket #{ticket_id} status updated to '{new_status}' successfully!"
+        except Exception as e:
+            db.session.rollback()
+            return False, f"Failed to update ticket status: {str(e)}"
 
 

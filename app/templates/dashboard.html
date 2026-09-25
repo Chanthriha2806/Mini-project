@@ -444,9 +444,159 @@
             </div>
         </div>
     </div>
-</div>
+<!-- Sixth Row: Support Tickets Management & Raise Ticket System -->
+{% if current_user.is_admin %}
+<!-- Admin Tickets Section -->
+<div class="row mt-4" id="tickets">
+    <div class="col-12">
+        <div class="metric-card border-0">
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <div>
+                    <h5 class="fw-bold mb-1 text-dark-emphasis">
+                        <i class="fa-solid fa-ticket text-danger me-2"></i>Client Support Tickets Management
+                    </h5>
+                    <small class="text-secondary">
+                        <span class="text-danger fw-bold"><i class="fa-solid fa-circle me-1"></i>RED = New/Open</span> • 
+                        <span class="text-warning fw-bold"><i class="fa-solid fa-circle me-1"></i>ORANGE = In Progress</span> • 
+                        <span class="text-success fw-bold"><i class="fa-solid fa-circle me-1"></i>GREEN = Resolved</span> • 
+                        <span class="text-secondary fw-bold"><i class="fa-solid fa-circle me-1"></i>GREY = Closed</span>
+                    </small>
+                </div>
+                <span class="badge bg-danger px-3 py-2 fs-6 rounded-pill">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i>{{ tickets_list|selectattr('status', 'equalto', 'Open')|list|length }} New (RED Priority)
+                </span>
+            </div>
 
-<!-- Sixth Row: AI Recommendation diagnostics -->
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-dark small" style="min-width: 700px;">
+                    <thead class="table-light border-bottom">
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Client Name</th>
+                            <th>Subject / Issue</th>
+                            <th>Description</th>
+                            <th class="text-center">Indication & Status</th>
+                            <th class="text-end">Update Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-tickets-tbody">
+                        {% for t in tickets_list %}
+                        <tr class="{% if t.status == 'Open' %}table-danger-subtle border-start border-4 border-danger{% endif %}">
+                            <td><strong>#{{ t.id }}</strong></td>
+                            <td>
+                                <strong>{{ t.user.username }}</strong><br>
+                                <small class="text-secondary">{{ t.user.email }}</small>
+                            </td>
+                            <td class="fw-bold text-dark">{{ t.subject }}</td>
+                            <td>
+                                <span class="text-secondary d-inline-block text-truncate" style="max-width: 240px;" title="{{ t.description }}">
+                                    {{ t.description }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                {% if t.status == 'Open' %}
+                                    <span class="badge bg-danger px-3 py-1 text-uppercase animate-pulse"><i class="fa-solid fa-triangle-exclamation me-1"></i>Open (RED)</span>
+                                {% elif t.status == 'In Progress' %}
+                                    <span class="badge bg-warning text-dark px-3 py-1 text-uppercase"><i class="fa-solid fa-spinner fa-spin me-1"></i>In Progress (ORANGE)</span>
+                                {% elif t.status == 'Resolved' %}
+                                    <span class="badge bg-success px-3 py-1 text-uppercase"><i class="fa-solid fa-check-circle me-1"></i>Resolved (GREEN)</span>
+                                {% else %}
+                                    <span class="badge bg-secondary px-3 py-1 text-uppercase"><i class="fa-solid fa-folder-closed me-1"></i>Closed (GREY)</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <select class="form-select form-select-sm d-inline-block w-auto ticket-status-select" data-ticket-id="{{ t.id }}">
+                                    <option value="Open" {% if t.status == 'Open' %}selected{% endif %}>🔴 Open (RED)</option>
+                                    <option value="In Progress" {% if t.status == 'In Progress' %}selected{% endif %}>🟠 In Progress (ORANGE)</option>
+                                    <option value="Resolved" {% if t.status == 'Resolved' %}selected{% endif %}>🟢 Resolved (GREEN)</option>
+                                    <option value="Closed" {% if t.status == 'Closed' %}selected{% endif %}>⚪ Closed (GREY)</option>
+                                </select>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-secondary">No client support tickets submitted.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% else %}
+<!-- Client Tickets Section -->
+<div class="row mt-4" id="tickets">
+    <!-- Raise Ticket Form -->
+    <div class="col-xl-5 mb-4 mb-xl-0">
+        <div class="metric-card">
+            <h6 class="fw-bold mb-3 text-dark-emphasis">
+                <i class="fa-solid fa-headset text-primary me-2"></i>Raise Support Ticket
+            </h6>
+            <form id="raiseTicketForm">
+                <div class="mb-3">
+                    <label for="ticketSubject" class="form-label text-dark-emphasis fw-semibold small">Subject / Problem</label>
+                    <input type="text" class="form-control" id="ticketSubject" placeholder="e.g. High CPU Usage / Laptop Heating" required>
+                </div>
+                <div class="mb-3">
+                    <label for="ticketDescription" class="form-label text-dark-emphasis fw-semibold small">Description</label>
+                    <textarea class="form-control" id="ticketDescription" rows="3" placeholder="Describe the issue you are facing..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold" id="submitTicketBtn">
+                    <i class="fa-solid fa-paper-plane me-1"></i>Submit Ticket
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Client Raised Tickets -->
+    <div class="col-xl-7">
+        <div class="metric-card">
+            <h6 class="fw-bold mb-3 text-dark-emphasis">
+                <i class="fa-solid fa-ticket text-primary me-2"></i>My Raised Support Tickets
+            </h6>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-dark small" style="min-width: 500px;">
+                    <thead class="table-light border-bottom">
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Subject</th>
+                            <th>Status Indication</th>
+                            <th>Submitted Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="client-tickets-tbody">
+                        {% for t in tickets_list %}
+                        <tr>
+                            <td><strong>#{{ t.id }}</strong></td>
+                            <td class="fw-bold text-dark">{{ t.subject }}</td>
+                            <td>
+                                {% if t.status == 'Open' %}
+                                    <span class="badge bg-danger px-3 py-1"><i class="fa-solid fa-circle-dot me-1"></i>Open (RED)</span>
+                                {% elif t.status == 'In Progress' %}
+                                    <span class="badge bg-warning text-dark px-3 py-1"><i class="fa-solid fa-spinner fa-spin me-1"></i>In Progress (ORANGE)</span>
+                                {% elif t.status == 'Resolved' %}
+                                    <span class="badge bg-success px-3 py-1"><i class="fa-solid fa-check-circle me-1"></i>Resolved (GREEN)</span>
+                                {% else %}
+                                    <span class="badge bg-secondary px-3 py-1"><i class="fa-solid fa-folder-closed me-1"></i>Closed (GREY)</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-secondary">{{ t.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="text-center py-4 text-secondary">No support tickets raised yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Seventh Row: AI Recommendation diagnostics -->
 <div class="row mt-4">
     <div class="col-12">
         <div class="metric-card">

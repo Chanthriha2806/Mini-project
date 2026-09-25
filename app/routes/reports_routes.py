@@ -1,6 +1,5 @@
-import os
 from flask import Blueprint, render_template, redirect, url_for, flash, send_from_directory, current_app
-from flask_login import login_required
+from flask_login import login_required, current_user
 from app.controllers.reports_controller import ReportsController
 
 reports_bp = Blueprint('reports', __name__)
@@ -9,6 +8,9 @@ reports_bp = Blueprint('reports', __name__)
 @login_required
 def reports_home():
     """Renders the reports home view containing generation triggers and file logs history."""
+    if not current_user.is_admin:
+        flash("Access restricted. Reports are only accessible by Administrators.", "warning")
+        return redirect(url_for('dashboard.index'))
     history = ReportsController.get_reports_history()
     return render_template('reports.html', history=history)
 

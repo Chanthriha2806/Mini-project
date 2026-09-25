@@ -94,5 +94,26 @@ def get_admin_clients():
     clients = DashboardController.get_admin_clients_summary(current_user)
     return jsonify({'success': True, 'clients': clients})
 
+@dashboard_bp.route('/api/tickets/create', methods=['POST'])
+@login_required
+def create_ticket():
+    """Endpoint for clients to submit a new issue/support ticket."""
+    data = request.get_json() or {}
+    subject = data.get('subject')
+    description = data.get('description')
+    success, message = DashboardController.create_ticket(current_user, subject, description)
+    return jsonify({'success': success, 'message': message}), 200 if success else 400
+
+@dashboard_bp.route('/api/tickets/update-status', methods=['POST'])
+@login_required
+def update_ticket_status():
+    """Endpoint for Admin to update ticket status (Open [RED], In Progress [ORANGE], Resolved [GREEN], Closed [GREY])."""
+    data = request.get_json() or {}
+    ticket_id = data.get('ticket_id')
+    new_status = data.get('status')
+    success, message = DashboardController.update_ticket_status(current_user, ticket_id, new_status)
+    return jsonify({'success': success, 'message': message}), 200 if success else 400
+
+
 
 

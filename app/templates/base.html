@@ -51,11 +51,19 @@
                 </a>
             </li>
             <li>
+                <a href="{{ url_for('dashboard.index') }}#tickets" class="sidebar-nav-link">
+                    <i class="fa-solid fa-ticket"></i>
+                    <span>Tickets</span>
+                </a>
+            </li>
+            {% if current_user.is_admin %}
+            <li>
                 <a href="{{ url_for('reports.reports_home') }}" class="sidebar-nav-link {% if request.blueprint == 'reports' %}active{% endif %}">
                     <i class="fa-solid fa-file-invoice"></i>
                     <span>Reports</span>
                 </a>
             </li>
+            {% endif %}
             <li>
                 <a href="{{ url_for('settings.settings_home') }}" class="sidebar-nav-link {% if request.blueprint == 'settings' %}active{% endif %}">
                     <i class="fa-solid fa-gears"></i>

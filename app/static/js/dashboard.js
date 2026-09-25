@@ -614,6 +614,73 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Handle Client Ticket Submission
+    const raiseTicketForm = document.getElementById('raiseTicketForm');
+    if (raiseTicketForm) {
+        raiseTicketForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const subject = document.getElementById('ticketSubject').value.trim();
+            const description = document.getElementById('ticketDescription').value.trim();
+            const submitBtn = document.getElementById('submitTicketBtn');
+            
+            if (!subject || !description) return;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Submitting...';
+            
+            try {
+                const res = await fetch('/api/tickets/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ subject, description })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    window.location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i>Submit Ticket';
+                }
+            } catch (err) {
+                console.error('Ticket submit error:', err);
+                alert('Network error submitting ticket.');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i>Submit Ticket';
+            }
+        });
+    }
+
+    // Handle Admin Ticket Status Change
+    document.addEventListener('change', async (e) => {
+        if (e.target.classList.contains('ticket-status-select')) {
+            const select = e.target;
+            const ticketId = select.getAttribute('data-ticket-id');
+            const newStatus = select.value;
+            
+            select.disabled = true;
+            try {
+                const res = await fetch('/api/tickets/update-status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticket_id: ticketId, status: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to update status: ' + data.message);
+                    select.disabled = false;
+                }
+            } catch (err) {
+                console.error('Update status error:', err);
+                alert('Network error updating ticket status.');
+                select.disabled = false;
+            }
+        }
+    });
+
     function appendMessage(text, sender) {
         if (!chatbotBody) return;
         const msgDiv = document.createElement('div');
