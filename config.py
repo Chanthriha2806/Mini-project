@@ -15,25 +15,29 @@ class Config:
     DB_PORT = os.environ.get('DB_PORT', '3306')
     DB_NAME = os.environ.get('DB_NAME', 'it_monitor_db')
     
-    # Standard SQLite fallback (Use /tmp SQLite inside Vercel serverless container)
+    # Standard SQLite fallback (Use in-memory SQLite with StaticPool on Vercel)
     if os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV') or not os.access(os.path.abspath(os.path.dirname(__file__)), os.W_OK):
+        from sqlalchemy.pool import StaticPool
         SQLALCHEMY_DATABASE_URI = os.environ.get(
             'DATABASE_URL',
-            'sqlite:////tmp/it_monitor_db.db'
+            'sqlite:///:memory:'
         )
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'connect_args': {'check_same_thread': False},
+            'poolclass': StaticPool
+        }
     else:
         SQLALCHEMY_DATABASE_URI = os.environ.get(
             'DATABASE_URL',
             f"sqlite:///{os.path.join(os.path.abspath(os.path.dirname(__file__)), 'it_monitor_db.db')}"
         )
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    
-    SQLALCHEMY_ENGINE_OPTIONS = {
-        'connect_args': {
-            'check_same_thread': False,
-            'timeout': 30
+        SQLALCHEMY_ENGINE_OPTIONS = {
+            'connect_args': {
+                'check_same_thread': False,
+                'timeout': 30
+            }
         }
-    }
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 
     # Flask-Mail configuration
