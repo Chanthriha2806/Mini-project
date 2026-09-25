@@ -52,7 +52,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     """Development environment configuration."""
-    DEBUG = True
+    DEBUG = False if (os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV')) else True
 
 class ProductionConfig(Config):
     """Production environment configuration."""
