@@ -62,16 +62,19 @@
                         <div class="input-group">
                             <span class="input-group-text bg-light border-end-0 text-secondary"><i class="fa-solid fa-envelope"></i></span>
                             <input type="email" class="form-control bg-light border-start-0 ps-0 text-dark" id="email_address" name="email_address" placeholder="Enter recipient email" value="{{ settings.email_address or '' }}">
+                            <button class="btn btn-outline-primary fw-bold" type="button" id="quickTestEmailBtn">
+                                <i class="fa-solid fa-paper-plane me-1"></i>Test Email
+                            </button>
                         </div>
                         <small class="text-secondary d-block mt-1">Target recipient address for automated SMTP warnings.</small>
                     </div>
                 </div>
 
-                <div class="d-flex flex-wrap gap-2 align-items-center">
+                <div class="d-flex flex-wrap gap-3 align-items-center">
                     <button type="submit" class="btn btn-primary fw-semibold px-4 py-2">
                         <i class="fa-solid fa-floppy-disk me-2"></i>Save Configuration Changes
                     </button>
-                    <button type="button" class="btn btn-outline-info fw-semibold px-4 py-2" id="testEmailBtn">
+                    <button type="button" class="btn btn-outline-primary fw-semibold px-4 py-2" id="testEmailBtn">
                         <i class="fa-solid fa-paper-plane me-2"></i>Send Test Email Notification
                     </button>
                 </div>
@@ -88,14 +91,13 @@
         document.getElementById(type + '-badge').innerText = val + '%';
     }
 
-    // Trigger test alert email
-    document.getElementById('testEmailBtn')?.addEventListener('click', async () => {
+    // Trigger test alert email helper
+    async function handleTestEmail(btnElement) {
         const emailInput = document.getElementById('email_address').value;
-        const btn = document.getElementById('testEmailBtn');
-        const origText = btn.innerHTML;
+        const origText = btnElement.innerHTML;
         
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Dispatching...';
+        btnElement.disabled = true;
+        btnElement.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Dispatching...';
 
         try {
             const res = await fetch('/settings/test-email', {
@@ -108,9 +110,12 @@
         } catch (err) {
             alert('❌ Network error occurred while initiating test email.');
         } finally {
-            btn.disabled = false;
-            btn.innerHTML = origText;
+            btnElement.disabled = false;
+            btnElement.innerHTML = origText;
         }
-    });
+    }
+
+    document.getElementById('testEmailBtn')?.addEventListener('click', (e) => handleTestEmail(e.currentTarget));
+    document.getElementById('quickTestEmailBtn')?.addEventListener('click', (e) => handleTestEmail(e.currentTarget));
 </script>
 {% endblock %}
