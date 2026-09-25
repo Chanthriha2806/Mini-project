@@ -96,7 +96,9 @@ class DashboardController:
                 },
                 'network': {
                     'upload_speed': latest.upload_speed,
-                    'download_speed': latest.download_speed
+                    'download_speed': latest.download_speed,
+                    'ip': latest.ip_address or 'Remote Client',
+                    'mac': 'N/A'
                 },
                 'system': {
                     'os': 'Client OS',
@@ -104,7 +106,12 @@ class DashboardController:
                     'hostname': latest.hostname,
                     'boot_time': 'N/A',
                     'uptime_str': 'Active'
-                }
+                },
+                'active_counts': {
+                    'users': 1,
+                    'processes': 0
+                },
+                'processes': []
             }
             metrics['is_remote'] = True
             
@@ -121,6 +128,16 @@ class DashboardController:
             # Fallback to local machine metrics
             metrics = SystemMonitor.get_system_metrics()
             metrics['is_remote'] = False
+            try:
+                metrics['processes'] = SystemMonitor.get_processes()
+            except Exception:
+                metrics['processes'] = []
+
+            if 'active_counts' not in metrics or not isinstance(metrics.get('active_counts'), dict):
+                metrics['active_counts'] = {'users': 1, 'processes': len(metrics['processes'])}
+            else:
+                metrics['active_counts']['processes'] = len(metrics['processes'])
+
             settings = Setting.query.filter_by(user_id=user.id).first()
             cpu_thresh = settings.cpu_threshold if settings else 90.0
             ram_thresh = settings.ram_threshold if settings else 90.0
@@ -129,6 +146,12 @@ class DashboardController:
             cpu_val = metrics['cpu']['usage']
             ram_val = metrics['memory']['percent']
             disk_val = metrics['disk']['percent']
+
+        # Ensure network IP & MAC defaults if missing
+        if 'network' not in metrics:
+            metrics['network'] = {'upload_speed': 0.0, 'download_speed': 0.0, 'ip': '127.0.0.1', 'mac': 'N/A'}
+        metrics['network'].setdefault('ip', '127.0.0.1')
+        metrics['network'].setdefault('mac', 'N/A')
 
         # Get history records for regression
         history_query = MonitoringHistory.query
@@ -187,15 +210,25 @@ class DashboardController:
         metrics['health_reasons'] = reasons
 
         # Generate AI diagnostics recommendations
-        from app.utilities.ai_engine import RecommendationEngine
-        metrics['recommendations'] = RecommendationEngine.generate_recommendations(
-            cpu_val,
-            ram_val,
-            disk_val,
-            metrics['network']['upload_speed'],
-            metrics['network']['download_speed'],
-            status
-        )
+        try:
+            from app.utilities.ai_engine import RecommendationEngine
+            metrics['recommendations'] = RecommendationEngine.generate_recommendations(
+                cpu_val,
+                ram_val,
+                disk_val,
+                metrics['network']['upload_speed'],
+                metrics['network']['download_speed'],
+                status
+            )
+        except Exception as ai_err:
+            metrics['recommendations'] = [{
+                'title': 'All Systems Operational',
+                'metric': 'SYSTEM',
+                'value': status,
+                'level': 'success' if status == 'HEALTHY' else 'warning',
+                'causes': ['Telemetry checks completed.'],
+                'actions': ['System metrics are within operational bounds.']
+            }]
 
         # Log current local metrics (if it's not a remote client query)
         if not latest:

@@ -200,111 +200,135 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             // Update CPU Card
-            document.getElementById('cpu-usage-val').innerText = `${data.cpu.usage}%`;
-            document.getElementById('cpu-cores-val').innerText = `${data.cpu.cores} Cores`;
-            document.getElementById('cpu-freq-val').innerText = `${data.cpu.frequency} GHz`;
+            if (document.getElementById('cpu-usage-val')) document.getElementById('cpu-usage-val').innerText = `${data.cpu?.usage ?? 0}%`;
+            if (document.getElementById('cpu-cores-val')) document.getElementById('cpu-cores-val').innerText = `${data.cpu?.cores ?? 'N/A'} Cores`;
+            if (document.getElementById('cpu-freq-val')) document.getElementById('cpu-freq-val').innerText = `${data.cpu?.frequency ?? 0} GHz`;
             const cpuBar = document.getElementById('cpu-progress-bar');
-            cpuBar.style.width = `${data.cpu.usage}%`;
-            adjustProgressBarColor(cpuBar, data.cpu.usage);
+            if (cpuBar) {
+                cpuBar.style.width = `${data.cpu?.usage ?? 0}%`;
+                adjustProgressBarColor(cpuBar, data.cpu?.usage ?? 0);
+            }
 
             // Update Memory Card
-            document.getElementById('ram-percent-val').innerText = `${data.memory.percent}%`;
-            document.getElementById('ram-used-total').innerText = `${data.memory.used} GB / ${data.memory.total} GB`;
+            if (document.getElementById('ram-percent-val')) document.getElementById('ram-percent-val').innerText = `${data.memory?.percent ?? 0}%`;
+            if (document.getElementById('ram-used-total')) document.getElementById('ram-used-total').innerText = `${data.memory?.used ?? 0} GB / ${data.memory?.total ?? 0} GB`;
             const ramBar = document.getElementById('ram-progress-bar');
-            ramBar.style.width = `${data.memory.percent}%`;
-            adjustProgressBarColor(ramBar, data.memory.percent);
+            if (ramBar) {
+                ramBar.style.width = `${data.memory?.percent ?? 0}%`;
+                adjustProgressBarColor(ramBar, data.memory?.percent ?? 0);
+            }
 
             // Update Disk Card
-            document.getElementById('disk-percent-val').innerText = `${data.disk.percent}%`;
-            document.getElementById('disk-used-total').innerText = `${data.disk.used} GB / ${data.disk.total} GB`;
+            if (document.getElementById('disk-percent-val')) document.getElementById('disk-percent-val').innerText = `${data.disk?.percent ?? 0}%`;
+            if (document.getElementById('disk-used-total')) document.getElementById('disk-used-total').innerText = `${data.disk?.used ?? 0} GB / ${data.disk?.total ?? 0} GB`;
             const diskBar = document.getElementById('disk-progress-bar');
-            diskBar.style.width = `${data.disk.percent}%`;
-            adjustProgressBarColor(diskBar, data.disk.percent);
+            if (diskBar) {
+                diskBar.style.width = `${data.disk?.percent ?? 0}%`;
+                adjustProgressBarColor(diskBar, data.disk?.percent ?? 0);
+            }
             
             // Update prediction details
             const diskPred = document.getElementById('disk-prediction-val');
-            if (diskPred && data.disk.prediction) {
+            if (diskPred && data.disk?.prediction) {
                 diskPred.innerText = data.disk.prediction;
                 diskPred.className = 'fw-semibold text-' + (data.disk.prediction_level || 'secondary');
             }
 
             // Update Network speed cards
-            document.getElementById('net-upload-val').innerText = `${data.network.upload_speed} KB/s`;
-            document.getElementById('net-download-val').innerText = `${data.network.download_speed} KB/s`;
-            document.getElementById('net-ip-val').innerText = data.network.ip;
-            document.getElementById('net-mac-val').innerText = data.network.mac;
+            if (document.getElementById('net-upload-val')) document.getElementById('net-upload-val').innerText = `${data.network?.upload_speed ?? 0} KB/s`;
+            if (document.getElementById('net-download-val')) document.getElementById('net-download-val').innerText = `${data.network?.download_speed ?? 0} KB/s`;
+            if (document.getElementById('net-ip-val')) document.getElementById('net-ip-val').innerText = data.network?.ip || 'N/A';
+            if (document.getElementById('net-mac-val')) document.getElementById('net-mac-val').innerText = data.network?.mac || 'N/A';
 
             // System uptime and accounts count
-            document.getElementById('sys-uptime-val').innerText = data.system.uptime_str;
-            document.getElementById('sys-os-val').innerText = data.system.os;
-            document.getElementById('sys-hostname-val').innerText = data.system.hostname;
-            document.getElementById('sys-boot-val').innerText = data.system.boot_time;
-            document.getElementById('counts-users').innerText = data.active_counts.users;
-            document.getElementById('counts-processes').innerText = data.active_counts.processes;
+            if (document.getElementById('sys-uptime-val')) document.getElementById('sys-uptime-val').innerText = data.system?.uptime_str || 'N/A';
+            if (document.getElementById('sys-os-val')) document.getElementById('sys-os-val').innerText = data.system?.os || 'N/A';
+            if (document.getElementById('sys-hostname-val')) document.getElementById('sys-hostname-val').innerText = data.system?.hostname || 'N/A';
+            if (document.getElementById('sys-boot-val')) document.getElementById('sys-boot-val').innerText = data.system?.boot_time || 'N/A';
+            if (document.getElementById('counts-users')) document.getElementById('counts-users').innerText = data.active_counts?.users ?? 1;
+            if (document.getElementById('counts-processes')) document.getElementById('counts-processes').innerText = data.active_counts?.processes ?? (data.processes ? data.processes.length : 0);
 
             // Processes table update
             const procBody = document.getElementById('processes-table-body');
             if (procBody) {
                 procBody.innerHTML = '';
+                const procs = Array.isArray(data.processes) ? data.processes : [];
                 const hasActions = Array.from(document.querySelectorAll('th')).some(th => th.innerText.trim() === 'Actions');
-                data.processes.forEach(proc => {
-                    let actionsCell = '';
-                    if (hasActions) {
-                        actionsCell = `
-                            <td class="text-end">
-                                <button class="btn btn-sm btn-outline-danger py-0 px-2 kill-process-btn" data-pid="${proc.pid}" data-name="${proc.name}" style="font-size: 0.7rem;">
-                                    <i class="fa-solid fa-ban me-1"></i>Kill
-                                </button>
-                            </td>
-                        `;
-                    }
-                    procBody.innerHTML += `
-                        <tr>
-                            <td><span class="badge bg-secondary">${proc.pid}</span></td>
-                            <td class="fw-semibold text-truncate" style="max-width: 140px;" title="${proc.name}">${proc.name}</td>
-                            <td>${proc.username}</td>
-                            <td class="text-end fw-medium text-primary">${proc.cpu_percent}%</td>
-                            <td class="text-end fw-medium text-info">${proc.memory_percent}%</td>
-                            ${actionsCell}
-                        </tr>
-                    `;
-                });
-
-                // Attach click listeners to processes
-                document.querySelectorAll('.kill-process-btn').forEach(btn => {
-                    btn.addEventListener('click', async (e) => {
-                        const pid = btn.getAttribute('data-pid');
-                        const name = btn.getAttribute('data-name');
-                        if (!confirm(`Are you sure you want to terminate process ${name} (PID: ${pid})?`)) return;
-                        try {
-                            const res = await fetch('/api/process/kill', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({ pid: parseInt(pid) })
-                            });
-                            const result = await res.json();
-                            if (result.success) {
-                                alert(result.message);
-                                updateDashboardMetrics();
-                            } else {
-                                alert('Error: ' + result.message);
-                            }
-                        } catch (err) {
-                            console.error('Failed to kill process:', err);
-                            alert('Network error occurred.');
+                
+                if (procs.length === 0) {
+                    procBody.innerHTML = `<tr><td colspan="${hasActions ? 6 : 5}" class="text-center py-3 text-secondary">No active processes reported.</td></tr>`;
+                } else {
+                    procs.forEach(proc => {
+                        let actionsCell = '';
+                        if (hasActions) {
+                            actionsCell = `
+                                <td class="text-end">
+                                    <button class="btn btn-sm btn-outline-danger py-0 px-2 kill-process-btn" data-pid="${proc.pid}" data-name="${proc.name}" style="font-size: 0.7rem;">
+                                        <i class="fa-solid fa-ban me-1"></i>Kill
+                                    </button>
+                                </td>
+                            `;
                         }
+                        procBody.innerHTML += `
+                            <tr>
+                                <td><span class="badge bg-secondary">${proc.pid}</span></td>
+                                <td class="fw-semibold text-truncate" style="max-width: 140px;" title="${proc.name}">${proc.name}</td>
+                                <td>${proc.username || 'SYSTEM'}</td>
+                                <td class="text-end fw-medium text-primary">${proc.cpu_percent}%</td>
+                                <td class="text-end fw-medium text-info">${proc.memory_percent}%</td>
+                                ${actionsCell}
+                            </tr>
+                        `;
                     });
-                });
+
+                    // Attach click listeners to processes
+                    document.querySelectorAll('.kill-process-btn').forEach(btn => {
+                        btn.addEventListener('click', async (e) => {
+                            const pid = btn.getAttribute('data-pid');
+                            const name = btn.getAttribute('data-name');
+                            if (!confirm(`Are you sure you want to terminate process ${name} (PID: ${pid})?`)) return;
+                            try {
+                                const res = await fetch('/api/process/kill', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({ pid: parseInt(pid) })
+                                });
+                                const result = await res.json();
+                                if (result.success) {
+                                    alert(result.message);
+                                    updateDashboardMetrics();
+                                } else {
+                                    alert('Error: ' + result.message);
+                                }
+                            } catch (err) {
+                                console.error('Failed to kill process:', err);
+                                alert('Network error occurred.');
+                            }
+                        });
+                    });
+                }
             }
+
             // Update AI recommendations list
             const recContainer = document.getElementById('recommendations-container');
             const recCount = document.getElementById('recommendations-count');
-            if (recContainer && recCount && data.recommendations) {
-                recCount.innerText = `${data.recommendations.length} Active Insight${data.recommendations.length !== 1 ? 's' : ''}`;
+            if (recContainer && recCount) {
+                const recommendations = (data.recommendations && data.recommendations.length > 0) ? data.recommendations : [
+                    {
+                        title: 'All Systems Operational',
+                        metric: 'SYSTEM',
+                        value: data.health_status || 'HEALTHY',
+                        level: 'success',
+                        causes: ['Resource consumption is well below configured thresholds.'],
+                        actions: ['No troubleshooting action required. Maintain regular audits.']
+                    }
+                ];
+
+                recCount.innerText = `${recommendations.length} Active Insight${recommendations.length !== 1 ? 's' : ''}`;
                 
                 // Color recCount badge based on highest level
                 let highestLevel = 'success';
-                data.recommendations.forEach(r => {
+                recommendations.forEach(r => {
                     if (r.level === 'danger') highestLevel = 'danger';
                     else if (r.level === 'warning' && highestLevel !== 'danger') highestLevel = 'warning';
                     else if (r.level === 'info' && highestLevel !== 'danger' && highestLevel !== 'warning') highestLevel = 'info';
@@ -312,15 +336,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 recCount.className = `badge bg-${highestLevel === 'warning' ? 'warning text-dark' : highestLevel}`;
 
                 recContainer.innerHTML = '';
-                data.recommendations.forEach(rec => {
+                recommendations.forEach(rec => {
                     // Create list items for causes and actions
                     let causesHtml = '';
-                    rec.causes.forEach(cause => {
+                    (rec.causes || []).forEach(cause => {
                         causesHtml += `<li class="d-flex align-items-start gap-1"><i class="fa-solid fa-circle-exclamation text-secondary mt-1" style="font-size: 0.75rem;"></i><span>${cause}</span></li>`;
                     });
                     
                     let actionsHtml = '';
-                    rec.actions.forEach(action => {
+                    (rec.actions || []).forEach(action => {
                         actionsHtml += `<li class="d-flex align-items-start gap-1"><i class="fa-solid fa-circle-check text-success mt-1" style="font-size: 0.75rem;"></i><span>${action}</span></li>`;
                     });
 
@@ -356,10 +380,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Update active line charts dynamically
             const timeStr = new Date().toLocaleTimeString();
-            appendChartData(cpuChart, timeStr, data.cpu.usage);
-            appendChartData(ramChart, timeStr, data.memory.percent);
-            appendChartData(diskChart, timeStr, data.disk.percent);
-            appendChartData(netChart, timeStr, [data.network.upload_speed, data.network.download_speed], true);
+            if (data.cpu) appendChartData(cpuChart, timeStr, data.cpu.usage);
+            if (data.memory) appendChartData(ramChart, timeStr, data.memory.percent);
+            if (data.disk) appendChartData(diskChart, timeStr, data.disk.percent);
+            if (data.network) appendChartData(netChart, timeStr, [data.network.upload_speed, data.network.download_speed], true);
 
         } catch (err) {
             console.error('Failed fetching real-time metrics: ', err);

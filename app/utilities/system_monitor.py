@@ -181,21 +181,20 @@ class SystemMonitor:
     def get_processes():
         """Fetches top 10 CPU/Memory consuming processes currently running."""
         processes = []
-        # Query basic process details
-        for proc in psutil.process_iter(['pid', 'name', 'username', 'cpu_percent', 'memory_percent']):
-            try:
-                # Resolve attributes
-                info = proc.info
-                # If username is None or missing, default
-                if not info.get('username'):
-                    info['username'] = 'SYSTEM'
-                # Round memory percent
-                info['memory_percent'] = round(info['memory_percent'] or 0.0, 2)
-                info['cpu_percent'] = round(info['cpu_percent'] or 0.0, 2)
-                processes.append(info)
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-                continue
+        try:
+            for proc in psutil.process_iter(['pid', 'name', 'username', 'cpu_percent', 'memory_percent']):
+                try:
+                    info = proc.info or {}
+                    if not info.get('username'):
+                        info['username'] = 'SYSTEM'
+                    info['memory_percent'] = round(info.get('memory_percent') or 0.0, 2)
+                    info['cpu_percent'] = round(info.get('cpu_percent') or 0.0, 2)
+                    processes.append(info)
+                except Exception:
+                    continue
+        except Exception:
+            return []
 
-        # Sort by CPU usage descending and take top 10
         sorted_procs = sorted(processes, key=lambda x: x.get('cpu_percent', 0.0) or 0.0, reverse=True)
         return sorted_procs[:10]
+
