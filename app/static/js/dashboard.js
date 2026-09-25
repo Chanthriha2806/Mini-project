@@ -573,6 +573,47 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // Handle Admin 'Send Email' button click
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.send-admin-email-btn');
+        if (!btn) return;
+        
+        const userId = btn.getAttribute('data-user-id');
+        const clientEmail = btn.getAttribute('data-email');
+        const clientName = btn.getAttribute('data-name');
+        
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i>Sending...';
+        
+        try {
+            const res = await fetch('/api/admin/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                btn.className = 'btn btn-sm btn-success px-3 rounded-pill';
+                btn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Email Sent!';
+                setTimeout(() => {
+                    btn.className = 'btn btn-sm btn-outline-danger px-3 rounded-pill send-admin-email-btn';
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                }, 3500);
+            } else {
+                alert('Failed to send email alert: ' + data.message);
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }
+        } catch (err) {
+            console.error('Email send error:', err);
+            alert('Network error while attempting to send email alert.');
+            btn.innerHTML = originalHtml;
+            btn.disabled = false;
+        }
+    });
+
     function appendMessage(text, sender) {
         if (!chatbotBody) return;
         const msgDiv = document.createElement('div');

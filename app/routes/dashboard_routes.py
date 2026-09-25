@@ -74,4 +74,25 @@ def chat_with_ai():
     response_md = DashboardController.chat_with_ai(current_user, message, metrics_context)
     return jsonify({'success': True, 'response': response_md})
 
+@dashboard_bp.route('/api/admin/send-email', methods=['POST'])
+@login_required
+def send_admin_email():
+    """Endpoint for Admin to send email alert to client laptop owner."""
+    data = request.get_json() or {}
+    user_id = data.get('user_id')
+    custom_message = data.get('message')
+    if not user_id:
+        return jsonify({'success': False, 'message': 'Missing target client user ID.'}), 400
+        
+    success, message = DashboardController.send_admin_email_to_client(current_user, user_id, custom_message)
+    return jsonify({'success': success, 'message': message}), 200 if success else 400
+
+@dashboard_bp.route('/api/admin/clients')
+@login_required
+def get_admin_clients():
+    """Endpoint for Admin to get live client laptops monitoring status summary."""
+    clients = DashboardController.get_admin_clients_summary(current_user)
+    return jsonify({'success': True, 'clients': clients})
+
+
 

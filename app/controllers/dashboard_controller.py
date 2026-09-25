@@ -31,8 +31,9 @@ class DashboardController:
         active_alerts = Alert.query.filter_by(status='ACTIVE').order_by(Alert.created_at.desc()).all()
         recent_alerts = Alert.query.order_by(Alert.created_at.desc()).limit(10).all()
 
-        # Retrieve registered client devices for admin dropdown
+        # Retrieve registered client devices for admin dropdown & fleet monitoring
         devices = []
+        clients_list = []
         if user.is_admin:
             unique_devices = db.session.query(
                 MonitoringHistory.user_id, 
@@ -48,11 +49,14 @@ class DashboardController:
                         'hostname': dev_hostname
                     })
 
+            clients_list = DashboardController.get_admin_clients_summary(user)
+
         return {
             'settings': settings,
             'active_alerts': active_alerts,
             'recent_alerts': recent_alerts,
-            'devices': devices
+            'devices': devices,
+            'clients_list': clients_list
         }
 
     @classmethod
@@ -179,7 +183,7 @@ class DashboardController:
             status = "CRITICAL"
             reasons.append(f"CPU usage ({cpu_val}%) exceeds threshold of {cpu_thresh}%")
             if not latest: # Only generate server alerts for local machine metrics
-                cls._create_or_retain_alert('CPU', f"High CPU utilization detected: {cpu_val}%", cpu_val, cpu_thresh)
+                cls._create_or_retain_alert('CPU', f"High CPU utilization detected: {cpu_val}%", cpu_val, cpu_thresh, target_email=user.email)
         else:
             if not latest:
                 cls._resolve_alert('CPU', f"CPU utilization returned to normal: {cpu_val}%")
@@ -188,7 +192,7 @@ class DashboardController:
             status = "CRITICAL"
             reasons.append(f"RAM usage ({ram_val}%) exceeds threshold of {ram_thresh}%")
             if not latest:
-                cls._create_or_retain_alert('RAM', f"High Memory usage detected: {ram_val}%", ram_val, ram_thresh)
+                cls._create_or_retain_alert('RAM', f"High Memory usage detected: {ram_val}%", ram_val, ram_thresh, target_email=user.email)
         else:
             if not latest:
                 cls._resolve_alert('RAM', f"Memory usage returned to normal: {ram_val}%")
@@ -334,7 +338,8 @@ class DashboardController:
                     f'CPU_{user.id}_{hostname}', 
                     f"{alert_prefix}High CPU utilization: {cpu_val}%", 
                     cpu_val, 
-                    cpu_thresh
+                    cpu_thresh,
+                    target_email=user.email
                 )
             else:
                 DashboardController._resolve_alert(f'CPU_{user.id}_{hostname}', f"CPU utilization normal on {hostname}")
@@ -344,7 +349,8 @@ class DashboardController:
                     f'RAM_{user.id}_{hostname}', 
                     f"{alert_prefix}High RAM usage: {ram_val}%", 
                     ram_val, 
-                    ram_thresh
+                    ram_thresh,
+                    target_email=user.email
                 )
             else:
                 DashboardController._resolve_alert(f'RAM_{user.id}_{hostname}', f"RAM utilization normal on {hostname}")
@@ -354,7 +360,8 @@ class DashboardController:
                     f'DISK_{user.id}_{hostname}', 
                     f"{alert_prefix}High disk space usage: {disk_val}%", 
                     disk_val, 
-                    disk_thresh
+                    disk_thresh,
+                    target_email=user.email
                 )
             else:
                 DashboardController._resolve_alert(f'DISK_{user.id}_{hostname}', f"Disk utilization normal on {hostname}")
@@ -365,7 +372,7 @@ class DashboardController:
             return False, f"Failed to save metrics: {str(e)}"
 
     @staticmethod
-    def _create_or_retain_alert(metric_type, message, value, threshold):
+    def _create_or_retain_alert(metric_type, message, value, threshold, target_email=None):
         """Helper to create a new alarm record or keep an existing ACTIVE one."""
         try:
             active_alert = Alert.query.filter_by(metric_type=metric_type, status='ACTIVE').first()
@@ -380,11 +387,76 @@ class DashboardController:
                 db.session.add(new_alert)
                 db.session.commit()
                 
-                # Proactively trigger an email alert when a new alert is generated
+                # Proactively trigger an automated email alert when a new threshold breach is detected
                 from app.utilities.mail_helper import MailHelper
-                MailHelper.send_alert_email(metric_type, value, threshold)
+                MailHelper.send_performance_alert(target_email, metric_type, value, threshold)
         except Exception:
             db.session.rollback()
+
+    @staticmethod
+    def get_admin_clients_summary(user):
+        """Builds real-time summary list of client laptops for Admin monitoring table."""
+        if not user.is_admin:
+            return []
+        
+        clients_list = []
+        all_clients = User.query.filter_by(is_admin=False).order_by(User.id.asc()).all()
+        if not all_clients:
+            all_clients = User.query.order_by(User.id.asc()).all()
+
+        for c in all_clients:
+            latest_rec = MonitoringHistory.query.filter_by(user_id=c.id).order_by(MonitoringHistory.created_at.desc()).first()
+            c_settings = Setting.query.filter_by(user_id=c.id).first()
+            c_cpu_thresh = c_settings.cpu_threshold if c_settings else 90.0
+            c_ram_thresh = c_settings.ram_threshold if c_settings else 90.0
+
+            if latest_rec:
+                cpu = round(latest_rec.cpu_usage, 1)
+                ram = round(latest_rec.ram_usage, 1)
+                hostname = latest_rec.hostname or 'Client Laptop'
+                last_seen = latest_rec.created_at.strftime('%H:%M:%S')
+
+                if cpu > c_cpu_thresh or ram > c_ram_thresh:
+                    status = 'CRITICAL'
+                elif cpu > (c_cpu_thresh - 15) or ram > (c_ram_thresh - 15):
+                    status = 'WARNING'
+                else:
+                    status = 'HEALTHY'
+            else:
+                cpu = 0.0
+                ram = 0.0
+                hostname = 'No Telemetry Yet'
+                last_seen = 'Never'
+                status = 'NO DATA'
+
+            clients_list.append({
+                'user_id': c.id,
+                'client_name': c.username,
+                'client_email': c.email,
+                'hostname': hostname,
+                'cpu_usage': cpu,
+                'ram_usage': ram,
+                'status': status,
+                'last_seen': last_seen
+            })
+        return clients_list
+
+    @staticmethod
+    def send_admin_email_to_client(admin_user, target_user_id, custom_message=None):
+        """Allows Admin to manually trigger email alert to a client's registered email."""
+        if not admin_user.is_admin:
+            return False, "Access denied. Only administrators can send client email alerts."
+        
+        target_user = User.query.get(target_user_id)
+        if not target_user:
+            return False, "Client user not found."
+            
+        from app.utilities.mail_helper import MailHelper
+        success = MailHelper.send_admin_manual_email(target_user.email, custom_message)
+        if success:
+            return True, f"Admin email alert successfully sent to {target_user.email}!"
+        else:
+            return False, f"Failed to send email alert to {target_user.email}."
 
     @staticmethod
     def _resolve_alert(metric_type, message):

@@ -44,10 +44,10 @@
 </div>
 
 {% if current_user.is_admin %}
-<!-- Admin Executive Fleet Device Selector -->
+<!-- Admin Executive Fleet Device Selector & Client Laptops Monitoring Table -->
 <div class="row mb-4">
     <div class="col-12">
-        <div class="metric-card device-selector-card py-3 px-4 border-0">
+        <div class="metric-card device-selector-card py-3 px-4 border-0 mb-3">
             <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
                 <div class="d-flex align-items-center gap-3">
                     <div class="icon-avatar gradient-cyan">
@@ -69,6 +69,89 @@
                         {% endfor %}
                     </select>
                 </div>
+            </div>
+        </div>
+
+        <!-- Admin Client Laptops Monitoring & Alert Table -->
+        <div class="metric-card border-0">
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <div>
+                    <h5 class="fw-bold mb-1 text-dark-emphasis">
+                        <i class="fa-solid fa-users-gear text-primary me-2"></i>Client Laptops Fleet Monitoring
+                    </h5>
+                    <small class="text-secondary">Monitor client CPU/RAM metrics and click "Send Email" to alert any user experiencing performance issues.</small>
+                </div>
+                <span class="badge bg-primary px-3 py-2 fs-6 rounded-pill">
+                    <i class="fa-solid fa-laptop me-1"></i>{{ clients_list|length }} Registered Clients
+                </span>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 text-dark small" style="min-width: 680px;">
+                    <thead class="table-light border-bottom">
+                        <tr>
+                            <th scope="col"><i class="fa-solid fa-user me-1 text-primary"></i>Client Name</th>
+                            <th scope="col"><i class="fa-solid fa-envelope me-1 text-primary"></i>Client Email</th>
+                            <th scope="col"><i class="fa-solid fa-laptop me-1 text-primary"></i>Laptop Host</th>
+                            <th scope="col" class="text-center"><i class="fa-solid fa-microchip me-1 text-primary"></i>CPU Usage</th>
+                            <th scope="col" class="text-center"><i class="fa-solid fa-memory me-1 text-primary"></i>RAM Usage</th>
+                            <th scope="col" class="text-center"><i class="fa-solid fa-shield-heart me-1 text-primary"></i>System Status</th>
+                            <th scope="col" class="text-end"><i class="fa-solid fa-paper-plane me-1 text-primary"></i>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-clients-tbody">
+                        {% for client in clients_list %}
+                        <tr>
+                            <td class="fw-bold text-dark">
+                                <i class="fa-solid fa-circle-user text-primary me-2"></i>{{ client.client_name }}
+                            </td>
+                            <td>
+                                <code class="text-primary fw-semibold">{{ client.client_email }}</code>
+                            </td>
+                            <td>
+                                <span class="badge bg-secondary-subtle text-secondary fw-medium px-2 py-1">
+                                    <i class="fa-solid fa-desktop me-1"></i>{{ client.hostname }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-bold {% if client.cpu_usage > 90 %}text-danger{% elif client.cpu_usage > 70 %}text-warning{% else %}text-success{% endif %}">
+                                    {{ client.cpu_usage }}%
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="fw-bold {% if client.ram_usage > 90 %}text-danger{% elif client.ram_usage > 70 %}text-warning{% else %}text-info{% endif %}">
+                                    {{ client.ram_usage }}%
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                {% if client.status == 'CRITICAL' %}
+                                    <span class="badge bg-danger px-3 py-1"><i class="fa-solid fa-triangle-exclamation me-1"></i>CRITICAL</span>
+                                {% elif client.status == 'WARNING' %}
+                                    <span class="badge bg-warning text-dark px-3 py-1"><i class="fa-solid fa-circle-exclamation me-1"></i>WARNING</span>
+                                {% elif client.status == 'HEALTHY' %}
+                                    <span class="badge bg-success px-3 py-1"><i class="fa-solid fa-circle-check me-1"></i>HEALTHY</span>
+                                {% else %}
+                                    <span class="badge bg-secondary px-3 py-1">NO TELEMETRY</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <button type="button" class="btn btn-sm btn-outline-danger px-3 rounded-pill send-admin-email-btn" 
+                                        data-user-id="{{ client.user_id }}" 
+                                        data-email="{{ client.client_email }}"
+                                        data-name="{{ client.client_name }}">
+                                    <i class="fa-solid fa-paper-plane me-1"></i>Send Email
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-secondary">
+                                <i class="fa-solid fa-circle-info me-2 text-primary"></i>No client laptops registered yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

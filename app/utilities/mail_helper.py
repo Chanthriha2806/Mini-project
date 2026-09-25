@@ -7,38 +7,29 @@ class MailHelper:
     """Helper service to format and transmit email alerts regarding resource usage threshold breaches."""
 
     @staticmethod
-    def send_alert_email(metric_type, value, threshold, target_email=None):
-        """Dispatches alert notifications via SMTP configuration when threshold is breached."""
-        # Retrieve target configuration settings
+    def send_performance_alert(target_email, metric_type=None, value=None, threshold=None):
+        """
+        Dispatches automated performance alert to client when CPU or RAM utilization exceeds threshold.
+        Subject: Laptop Performance Alert
+        Message: "Your company laptop is experiencing high resource utilization. CPU/RAM usage has reached a high level. Please check your system."
+        """
         try:
-            # Import settings inside method to prevent circular dependencies
-            from app.models.setting import Setting
-            
-            # Use general settings target if available
-            settings = Setting.query.order_by(Setting.id.asc()).first()
-            recipient = target_email or (settings.email_address if settings and settings.email_address else current_app.config.get('MAIL_USERNAME'))
-
-            
+            recipient = target_email or current_app.config.get('MAIL_USERNAME')
             if not recipient:
-                logging.warning("No recipient email address configured. Skipping alert email dispatch.")
+                logging.warning("No recipient email address configured for performance alert. Skipping email dispatch.")
                 return False
 
-            subject = f"[CRITICAL BREACH] {metric_type} threshold exceeded!"
+            subject = "Laptop Performance Alert"
             body = (
-                f"Dear Administrator,\n\n"
-                f"This is an automated alert notification from your IT Infrastructure Monitoring Dashboard.\n\n"
-                f"Metric: {metric_type}\n"
-                f"Current Value: {value}%\n"
-                f"Configured Threshold: {threshold}%\n"
-                f"Timestamp: {current_app.config.get('CURRENT_TIME', 'Just now')}\n\n"
-                f"Please login to your Monitoring Dashboard immediately to review recommending corrective actions.\n\n"
-                f"Regards,\n"
-                f"MonitorAI Engine"
+                "Your company laptop is experiencing high resource utilization. "
+                "CPU/RAM usage has reached a high level. Please check your system."
             )
+            if metric_type and value is not None:
+                body += f"\n\n[System Telemetry Details]\nMetric: {metric_type}\nCurrent Usage: {value}%\nConfigured Threshold: {threshold}%"
 
             # Check if SMTP details are configured
             if not current_app.config.get('MAIL_USERNAME') or not current_app.config.get('MAIL_PASSWORD'):
-                logging.info(f"[Mock Mail] Alert dispatched to {recipient}. SMTP details not set. Details: {metric_type}={value}%")
+                logging.info(f"[Mock Mail] Performance alert dispatched to {recipient}. Subject: '{subject}' | Message: '{body}'")
                 return True
 
             msg = Message(
@@ -47,9 +38,50 @@ class MailHelper:
                 body=body
             )
             mail.send(msg)
-            logging.info(f"Alert email successfully dispatched to {recipient} regarding {metric_type} breach.")
+            logging.info(f"Performance alert email successfully sent to {recipient}.")
             return True
-
         except Exception as e:
-            logging.error(f"Failed to dispatch alert notification email: {str(e)}")
+            logging.error(f"Failed to dispatch performance alert email to {target_email}: {str(e)}")
             return False
+
+    @staticmethod
+    def send_admin_manual_email(target_email, custom_message=None):
+        """
+        Dispatches manual admin alert to client when Admin clicks 'Send Email' button from Admin Dashboard.
+        Subject: Admin Alert – Laptop Issue
+        Message: "Hello, we noticed a performance issue with your company laptop. Please check your laptop and take the necessary action."
+        """
+        try:
+            recipient = target_email or current_app.config.get('MAIL_USERNAME')
+            if not recipient:
+                logging.warning("No recipient email provided for admin alert. Skipping email dispatch.")
+                return False
+
+            subject = "Admin Alert – Laptop Issue"
+            body = custom_message or (
+                "Hello, we noticed a performance issue with your company laptop. "
+                "Please check your laptop and take the necessary action."
+            )
+
+            # Check if SMTP details are configured
+            if not current_app.config.get('MAIL_USERNAME') or not current_app.config.get('MAIL_PASSWORD'):
+                logging.info(f"[Mock Mail] Admin manual alert dispatched to {recipient}. Subject: '{subject}' | Message: '{body}'")
+                return True
+
+            msg = Message(
+                subject=subject,
+                recipients=[recipient],
+                body=body
+            )
+            mail.send(msg)
+            logging.info(f"Admin alert email successfully sent to {recipient}.")
+            return True
+        except Exception as e:
+            logging.error(f"Failed to dispatch admin alert email to {target_email}: {str(e)}")
+            return False
+
+    @staticmethod
+    def send_alert_email(metric_type, value, threshold, target_email=None):
+        """Maintained for backward compatibility with existing code calls."""
+        return MailHelper.send_performance_alert(target_email, metric_type, value, threshold)
+
