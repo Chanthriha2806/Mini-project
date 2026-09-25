@@ -8,6 +8,11 @@ if root_dir not in sys.path:
 
 from app import create_app
 
-# Expose WSGI handler for Vercel Serverless Function
 app = create_app('production')
+
+@app.errorhandler(Exception)
+def handle_exception(e):
+    import traceback
+    return f"<h3>Application Error on Vercel:</h3><pre>{traceback.format_exc()}</pre>", 500
+
 handler = app
