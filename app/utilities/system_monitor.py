@@ -46,6 +46,7 @@ class SystemMonitor:
     def get_local_ip():
         """Gets local active IP address by connecting socket to public network (no data transfer)."""
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.settimeout(0.2)
         try:
             s.connect(('8.8.8.8', 1))
             ip = s.getsockname()[0]

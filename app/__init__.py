@@ -74,8 +74,11 @@ def create_app(config_name='default'):
                     )
                     db.session.add(admin_setting)
                     db.session.commit()
-                app._db_initialized = True
             except Exception as e:
+                db.session.rollback()
+                app.logger.warning(f"Database readiness warning: {e}")
+            finally:
+                app._db_initialized = True
                 db.session.rollback()
 
     # Attempt to auto-create tables on startup
