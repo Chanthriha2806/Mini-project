@@ -15,7 +15,7 @@ class Config:
     DB_NAME = os.environ.get('DB_NAME', 'it_monitor_db')
     
     # Standard SQLite fallback (Use /tmp inside Vercel serverless read-only container)
-    if os.environ.get('VERCEL') == '1':
+    if os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV') or not os.access(os.path.abspath(os.path.dirname(__file__)), os.W_OK):
         SQLALCHEMY_DATABASE_URI = os.environ.get(
             'DATABASE_URL',
             'sqlite:////tmp/it_monitor_db.db'
