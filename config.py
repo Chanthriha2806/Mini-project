@@ -52,7 +52,7 @@ class ProductionConfig(Config):
     """Production environment configuration."""
     DEBUG = False
     # In production, require strict environment values
-    SECRET_KEY = os.environ.get('SECRET_KEY') or os.urandom(24)
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'prod-secret-key-monitor-ai-2026-secure')
 
 class TestingConfig(Config):
     """Testing environment configuration."""

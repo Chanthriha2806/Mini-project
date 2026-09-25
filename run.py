@@ -4,8 +4,13 @@ import threading
 import time
 from app import create_app
 
+# Resolve environment mode
+env_mode = os.environ.get('FLASK_ENV')
+if not env_mode:
+    env_mode = 'production' if os.environ.get('VERCEL') == '1' else 'development'
+
 # Create flask application instance
-app = create_app(os.environ.get('FLASK_ENV', 'development'))
+app = create_app(env_mode)
 
 def launch_browser(port):
     """Waits for the server boot-up and opens the default web browser."""
@@ -20,5 +25,5 @@ if __name__ == '__main__':
     if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
         threading.Thread(target=launch_browser, args=(port,), daemon=True).start()
 
-    app.run(host='0.0.0.0', port=port, debug=app.config.get('DEBUG', True))
+    app.run(host='0.0.0.0', port=port, debug=app.config.get('DEBUG', False))
 

@@ -20,12 +20,12 @@
 <div id="dashboard-meta" data-refresh-interval="{{ settings.refresh_interval }}" class="d-none"></div>
 
 <!-- Top Row: Server Status & Alerts Notification Banner -->
-<div class="row mb-4">
+<div class="row mb-3">
     <div class="col-12">
-        <div class="metric-card border-start border-4" id="healthStatusBox">
+        <div class="metric-card py-3 px-4 border-start border-4" id="healthStatusBox" style="height: auto;">
             <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="fs-1 text-primary"><i class="fa-solid fa-server"></i></div>
+                    <div class="fs-2 text-primary"><i class="fa-solid fa-server"></i></div>
                     <div>
                         <h5 class="fw-bold mb-1">Server Status: <span class="badge px-3 py-2 fw-bold" id="overallHealthBadge">Checking...</span></h5>
                         <p class="text-secondary small mb-0" id="healthMessage">Analyzing real-time metrics against user thresholds...</p>
@@ -40,11 +40,12 @@
                 </div>
             </div>
         </div>
-{% if current_user.is_admin %}
+    </div>
+</div>{% if current_user.is_admin %}
 <!-- Admin Device Selector -->
-<div class="row mb-4">
+<div class="row mb-3">
     <div class="col-12">
-        <div class="metric-card bg-body-tertiary">
+        <div class="metric-card bg-body-tertiary py-3 px-4" style="height: auto;">
             <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
                 <div class="d-flex align-items-center gap-2">
                     <span class="fs-4 text-primary"><i class="fa-solid fa-laptop-code"></i></span>
@@ -315,6 +316,7 @@
                     </div>
                 {% endif %}
             </div>
+        </div>
     </div>
 </div>
 

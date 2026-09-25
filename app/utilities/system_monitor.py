@@ -114,9 +114,13 @@ class SystemMonitor:
         mac_addr = cls.get_mac_address(ip_addr)
 
         # 5. OS & Boot time details
-        boot_time_timestamp = psutil.boot_time()
-        boot_time_str = datetime.fromtimestamp(boot_time_timestamp).strftime('%Y-%m-%d %H:%M:%S')
-        uptime = time.time() - boot_time_timestamp
+        try:
+            boot_time_timestamp = psutil.boot_time()
+            boot_time_str = datetime.fromtimestamp(boot_time_timestamp).strftime('%Y-%m-%d %H:%M:%S')
+            uptime = max(0.0, time.time() - boot_time_timestamp)
+        except Exception:
+            boot_time_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            uptime = 0.0
 
         # Uptime formatting: Days, Hours, Minutes
         days = int(uptime // 86400)
@@ -129,7 +133,11 @@ class SystemMonitor:
             users_count = len(psutil.users())
         except Exception:
             users_count = 1
-        processes_count = len(psutil.pids())
+
+        try:
+            processes_count = len(psutil.pids())
+        except Exception:
+            processes_count = 10
 
         return {
             'cpu': {
