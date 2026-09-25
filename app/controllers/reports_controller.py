@@ -90,8 +90,12 @@ class ReportsController:
         ext = 'pdf' if file_format == 'pdf' else 'xlsx'
         filename = f"report_{report_type}_{timestamp_str}.{ext}"
         
-        # Reports directory in static folder
-        reports_dir = os.path.join(current_app.root_path, 'static', 'reports')
+        # Reports directory (use /tmp in Vercel read-only environment)
+        if os.environ.get('VERCEL') == '1':
+            reports_dir = '/tmp'
+        else:
+            reports_dir = os.path.join(current_app.root_path, 'static', 'reports')
+        os.makedirs(reports_dir, exist_ok=True)
         filepath = os.path.join(reports_dir, filename)
 
         # 6. Execute appropriate generator

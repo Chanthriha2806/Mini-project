@@ -16,7 +16,10 @@ def reports_home():
 @login_required
 def download_report(filename):
     """Transfers the target report file to the client for local download."""
-    reports_dir = os.path.join(current_app.root_path, 'static', 'reports')
+    if os.environ.get('VERCEL') == '1':
+        reports_dir = '/tmp'
+    else:
+        reports_dir = os.path.join(current_app.root_path, 'static', 'reports')
     # Validate existence to prevent errors
     if not os.path.exists(os.path.join(reports_dir, filename)):
         flash("Target report file no longer exists on this server.", "danger")

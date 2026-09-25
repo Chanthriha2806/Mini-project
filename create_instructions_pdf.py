@@ -50,56 +50,40 @@ def make_pdf(filepath):
     )
 
     # Document Flowables
-    story.append(Paragraph("MonitorAI: Multi-Device Infrastructure Setup Guide", title_style))
-    story.append(Paragraph("This PDF manual outlines the folder structures and instructions required to test and monitor standard client laptops using the MonitorAI platform.", body_style))
-    story.append(Spacer(1, 5))
+    story.append(Paragraph("MonitorAI Setup & User Guide", title_style))
+    story.append(Paragraph("This manual provides step-by-step instructions to register a user account, download client files, run the telemetry agent on any laptop, and view real-time performance on the admin dashboard.", body_style))
+    story.append(Spacer(1, 10))
 
-    # Server-Side Setup Section
-    story.append(Paragraph("1. Server-Side Directory Structure (Host Dashboard)", h2_style))
-    story.append(Paragraph("The server hosts the primary Flask dashboard database, PDF/Excel reports repository, alerts logger, and the dynamic interactive AI Diagnostics assistant.", body_style))
-    
-    server_structure = """Server_Project/ (Main Project Root)
-├── run.py                 # Launches Flask server & triggers browser
-├── initialize_database.py # Prepares and seeds the local SQLite database
-├── config.py              # Main configurations & thresholds definition
-├── requirements.txt       # Dependencies manifest (Flask, SQLAlchemy, PyMySQL)
-├── it_monitor_db.db       # SQLite local database binary file
-├── client_agent.py        # Client reporting agent executable script
-├── app/                   # Primary MVC package folder
-│   ├── models/            # Database schema models (User, Alert, Report)
-│   ├── controllers/       # Dashboard, metrics, auth, and reports controllers
-│   ├── routes/            # Blueprint routes declarations
-│   ├── templates/         # UI layout templates (dashboard, detailed specs)
-│   ├── static/            # Stylesheets (style.css), JS scripts, images
-│   └── utilities/         # AI recommendations, system specs, mail helper
-└── tests/                 # Unittest diagnostics packages"""
-    
-    story.append(Paragraph(server_structure.replace("\n", "<br/>").replace(" ", "&nbsp;"), code_style))
-
-    # Client-Side Setup Section
-    story.append(Paragraph("2. Client-Side Directory Structure (Other Laptops)", h2_style))
-    story.append(Paragraph("To gather telemetry data from other client laptops, copy only the following directory structure to a folder on the other machine:", body_style))
-    
-    client_structure = """Client_Telemetry/
-├── client_agent.py        # Gathers system metrics and posts them to server
-└── requirements.txt       # Minimised client dependencies listing (psutil, requests)"""
-    
-    story.append(Paragraph(client_structure.replace("\n", "<br/>").replace(" ", "&nbsp;"), code_style))
-    story.append(Spacer(1, 5))
-
-    # Connecting Clients Section
-    story.append(Paragraph("3. Step-by-Step Connection Instructions", h2_style))
+    # Steps Table / Section
+    story.append(Paragraph("Step-by-Step Setup Instructions", h2_style))
     
     steps = [
-        "<b>Step A: Identify Server Network Address</b><br/>Start the web dashboard on the host computer. Observe the console startup log to get the LAN IP address (e.g. <i>http://192.168.1.6:5000</i>).",
-        "<b>Step B: Copy & Setup Agent</b><br/>Copy the client folder to the target laptop, open a terminal (PowerShell or Command Prompt) in that folder, and install dependencies:<br/>&nbsp;&nbsp;&nbsp;&nbsp;<font color='#b91c1c'>pip install requests psutil</font>",
-        "<b>Step C: Run Telemetry Reporting Agent</b><br/>Start the client agent pointing to the server's IP address:<br/>&nbsp;&nbsp;&nbsp;&nbsp;<font color='#b91c1c'>py client_agent.py http://&lt;your-server-ip&gt;:5000</font>",
-        "<b>Step D: Authenticate with Dashboard Credentials</b><br/>Input the standard user credentials (Default: Username: <b>client</b> / Password: <b>client123</b>, or register a new user on the dashboard). The agent will print successful authentication and begin polling.",
-        "<b>Step E: View Live Diagnostics</b><br/>Log in to the web dashboard on the host machine as <b>admin</b> / <b>admin123</b>. Use the <b>\"Select Remote Machine to Monitor\"</b> dropdown menu at the top of the page to toggle display specs to the remote laptop."
+        "<b>1. Open the Website:</b><br/>Visit the live dashboard URL: <font color='#1e3a8a'><b>https://mini-project-phi-green.vercel.app/</b></font>",
+        
+        "<b>2. Register a New Account:</b><br/>Go to <font color='#1e3a8a'><b>https://mini-project-phi-green.vercel.app/auth/register</b></font> and create a new user account (e.g. Username: <b>Aishwarya</b> / Password: <b>Aishu@123</b>).",
+        
+        "<b>3. Download the Required Files:</b><br/>After logging in, download the following three files from the dashboard header links:<br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;• <b>1. Agent Script</b> (<code>client_agent.py</code>)<br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;• <b>2. Requirements</b> (<code>requirements.txt</code>)<br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;• <b>3. One-Click Launcher</b> (<code>run_client.bat</code>)",
+        
+        "<b>4. Create a Folder:</b><br/>Create a new folder on your computer named <b>MonitorAI</b> and move all three downloaded files into this folder.",
+        
+        "<b>5. Run the Client Telemetry Agent:</b><br/>Open the <b>MonitorAI</b> folder and double-click <b>run_client.bat</b>. When the Command Prompt window appears, enter the following details when prompted:<br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;• <b>Server URL:</b> <code>https://mini-project-phi-green.vercel.app</code><br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;• <b>Username:</b> <code>Aishwarya</code> <i>(or your registered username)</i><br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;• <b>Password:</b> <code>Aishu@123</code> <i>(or your registered password)</i>",
+        
+        "<b>6. Register a Test Account (Optional):</b><br/>Open <code>https://mini-project-phi-green.vercel.app/auth/register</code> to register additional test user accounts.",
+        
+        "<b>7. View Connected Client Performance (Admin Dashboard):</b><br/>Open your web browser and go to <b>https://mini-project-phi-green.vercel.app/</b>.<br/>Log in using the administrator credentials:<br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;• <b>Admin Username:</b> <code>admin</code><br/>"
+        "&nbsp;&nbsp;&nbsp;&nbsp;• <b>Admin Password:</b> <code>admin123</code><br/>"
+        "Select your connected laptop from the <b>Select Remote Machine</b> dropdown menu to monitor live CPU, Memory, Disk, and Network telemetry."
     ]
     for s in steps:
         story.append(Paragraph(f"• {s}", body_style))
-        story.append(Spacer(1, 2))
+        story.append(Spacer(1, 4))
 
     doc.build(story)
     print("[+] PDF setup manual generated successfully!")

@@ -172,22 +172,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const statusBox = document.getElementById('healthStatusBox');
             const healthMsg = document.getElementById('healthMessage');
             if (badge && statusBox) {
-                // Remove existing classes
+                // Preserve padding and border-start classes
                 badge.className = 'badge px-3 py-2 fw-bold ';
-                statusBox.className = 'metric-card ';
+                statusBox.className = 'metric-card py-3 px-4 border-start border-4 ';
 
                 if (data.health_status === 'HEALTHY') {
                     badge.classList.add('bg-success');
                     badge.innerText = 'Healthy';
-                    statusBox.classList.add('border-success-subtle');
+                    statusBox.classList.add('border-success-subtle', 'border-success');
                 } else if (data.health_status === 'WARNING') {
                     badge.classList.add('bg-warning', 'text-dark');
                     badge.innerText = 'Warning';
-                    statusBox.classList.add('border-warning-subtle');
+                    statusBox.classList.add('border-warning-subtle', 'border-warning');
                 } else {
                     badge.classList.add('bg-danger');
                     badge.innerText = 'Critical';
-                    statusBox.classList.add('border-danger-subtle');
+                    statusBox.classList.add('border-danger-subtle', 'border-danger');
                 }
             }
 
