@@ -40,6 +40,7 @@ def create_app(config_name='default'):
     from app.models.alert import Alert
     from app.models.monitoring import MonitoringHistory
     from app.models.report import Report
+    from app.models.ticket import Ticket
 
     @login_manager.user_loader
     def load_user(user_id):
