@@ -26,6 +26,12 @@ class Config:
             f"sqlite:///{os.path.join(os.path.abspath(os.path.dirname(__file__)), 'it_monitor_db.db')}"
         )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'connect_args': {
+            'check_same_thread': False,
+            'timeout': 30
+        }
+    }
 
 
     # Flask-Mail configuration
