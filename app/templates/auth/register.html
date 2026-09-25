@@ -3,66 +3,150 @@
 {% block title %}Register - IT Infrastructure Monitor{% endblock %}
 
 {% block guest_content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <div class="brand-header">
-            <i class="fa-solid fa-circle-nodes"></i>
-            <h3 class="fw-bold mt-3 text-dark">MonitorAI Register</h3>
-            <p class="text-secondary small">Sign up to monitor server metrics in real time</p>
+<div class="auth-full-wrapper">
+    <!-- Animated Luminous Background Orbs -->
+    <div class="auth-bg-orb auth-bg-orb-1"></div>
+    <div class="auth-bg-orb auth-bg-orb-2"></div>
+
+    <div class="auth-split-grid">
+        <!-- Left Showcase Panel with Animated Laptop Troubleshooting & Bold Animated Headline -->
+        <div class="auth-hero-showcase">
+            <div class="auth-badge-pill">
+                <i class="fa-solid fa-user-plus"></i> Join Infrastructure Protection Fleet
+            </div>
+            
+            <h1 class="auth-bold-headline">
+                Register Your Account & Start Laptop Monitoring
+            </h1>
+            
+            <p class="text-secondary fs-6 mb-2" style="line-height: 1.6;">
+                Create your account to enable real-time CPU/RAM telemetry collection, automated warning emails, and AI diagnostics.
+            </p>
+
+            <!-- Laptop Troubleshooting Interactive Animation Visualizer -->
+            <div class="laptop-troubleshoot-visualizer">
+                <!-- Floating Laptop Screen Mockup -->
+                <div class="laptop-frame">
+                    <div class="laptop-screen-header">
+                        <div class="laptop-screen-dots">
+                            <span class="dot-red"></span>
+                            <span class="dot-yellow"></span>
+                            <span class="dot-green"></span>
+                        </div>
+                        <small style="font-size: 0.65rem; color: #94a3b8;"><i class="fa-solid fa-shield-halved me-1 text-success"></i>MonitorAI Core v2.4</small>
+                    </div>
+                    <div class="laptop-screen-body">
+                        <!-- Laser Scan Line -->
+                        <div class="laptop-scan-beam"></div>
+                        <div style="line-height: 1.5;">
+                            <div>&gt; Account Provisioning: <span style="color:#10b981;">READY</span></div>
+                            <div>&gt; Database Registry: <span style="color:#38bdf8;">ACTIVE</span></div>
+                            <div>&gt; Threshold Config: <span style="color:#38bdf8;">90% DEFAULT</span></div>
+                            <div>&gt; SMTP Email Service: <span style="color:#10b981;">CONNECTED</span></div>
+                            <div class="mt-2" style="color:#94a3b8;">&gt; Awaiting new client registration...</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="laptop-base"></div>
+
+                <!-- Floating Diagnostic Telemetry Badges -->
+                <div class="diag-floating-card card-pos-1">
+                    <i class="fa-solid fa-user-shield text-primary fs-5"></i>
+                    <div>
+                        <div class="text-secondary" style="font-size:0.65rem;">SECURE ACCOUNT</div>
+                        <div class="text-primary fw-bold">Encrypted Passwords</div>
+                    </div>
+                </div>
+
+                <div class="diag-floating-card card-pos-2">
+                    <i class="fa-solid fa-bell text-warning fs-5"></i>
+                    <div>
+                        <div class="text-secondary" style="font-size:0.65rem;">ALERT NOTIFICATIONS</div>
+                        <div class="text-warning fw-bold">Email Configured</div>
+                    </div>
+                </div>
+
+                <div class="diag-floating-card card-pos-3">
+                    <i class="fa-solid fa-chart-line text-success fs-5"></i>
+                    <div>
+                        <div class="text-secondary" style="font-size:0.65rem;">REAL-TIME CHARTS</div>
+                        <div class="text-success fw-bold">Telemetry Live</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Animated Ticker Banner -->
+            <div class="p-2.5 rounded-3 bg-body-tertiary border d-flex align-items-center gap-2 mt-2" style="font-size: 0.8rem;">
+                <span class="badge bg-primary-subtle text-primary fw-bold px-2 py-1"><i class="fa-solid fa-shield-check me-1"></i>SETUP</span>
+                <span class="text-secondary">Simple 1-Minute Registration • Instant Telemetry Dashboard</span>
+            </div>
         </div>
 
-        <!-- Flash alerts for registration errors -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
-                        <small>{{ message }}</small>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        <!-- Right Form Card Panel -->
+        <div class="auth-form-card">
+            <div class="brand-header text-center mb-4">
+                <div class="icon-avatar gradient-cyan mx-auto mb-2" style="width: 54px; height: 54px; border-radius: 16px;">
+                    <i class="fa-solid fa-user-plus fs-3 text-white"></i>
+                </div>
+                <h3 class="fw-bold mt-2 text-dark-emphasis mb-1">Create Account</h3>
+                <p class="text-secondary small mb-0">Sign up to monitor server and laptop metrics in real time</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show" role="alert">
+                            <small>{{ message }}</small>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('auth.register') }}" method="POST" autocomplete="off">
+                <div class="mb-3">
+                    <label for="username" class="form-label text-dark-emphasis fw-semibold small">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0 text-primary bg-body-tertiary"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" class="form-control border-start-0 ps-0" id="username" name="username" placeholder="Choose username" required>
                     </div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-
-        <form action="{{ url_for('auth.register') }}" method="POST" autocomplete="off">
-            <div class="mb-3">
-                <label for="username" class="form-label text-dark fw-medium small">Username</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-secondary"><i class="fa-solid fa-user"></i></span>
-                    <input type="text" class="form-control bg-light border-start-0 ps-0 text-dark" id="username" name="username" placeholder="Choose username" required>
                 </div>
-            </div>
 
-            <div class="mb-3">
-                <label for="email" class="form-label text-dark fw-medium small">Email Address</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-secondary"><i class="fa-solid fa-envelope"></i></span>
-                    <input type="email" class="form-control bg-light border-start-0 ps-0 text-dark" id="email" name="email" placeholder="Enter email" required>
+                <div class="mb-3">
+                    <label for="email" class="form-label text-dark-emphasis fw-semibold small">Email Address</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0 text-primary bg-body-tertiary"><i class="fa-solid fa-envelope"></i></span>
+                        <input type="email" class="form-control border-start-0 ps-0" id="email" name="email" placeholder="Enter email address" required>
+                    </div>
                 </div>
-            </div>
 
-            <div class="mb-3">
-                <label for="password" class="form-label text-dark fw-medium small">Password</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-secondary"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" class="form-control bg-light border-start-0 ps-0 text-dark" id="password" name="password" placeholder="Create password" required>
+                <div class="mb-3">
+                    <label for="password" class="form-label text-dark-emphasis fw-semibold small">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0 text-primary bg-body-tertiary"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" class="form-control border-start-0 ps-0" id="password" name="password" placeholder="Create password" required>
+                    </div>
                 </div>
-            </div>
 
-            <div class="mb-4">
-                <label for="confirm_password" class="form-label text-dark fw-medium small">Confirm Password</label>
-                <div class="input-group">
-                    <span class="input-group-text bg-light border-end-0 text-secondary"><i class="fa-solid fa-lock"></i></span>
-                    <input type="password" class="form-control bg-light border-start-0 ps-0 text-dark" id="confirm_password" name="confirm_password" placeholder="Verify password" required>
+                <div class="mb-4">
+                    <label for="confirm_password" class="form-label text-dark-emphasis fw-semibold small">Confirm Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0 text-primary bg-body-tertiary"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" class="form-control border-start-0 ps-0" id="confirm_password" name="confirm_password" placeholder="Verify password" required>
+                    </div>
                 </div>
-            </div>
 
-            <button type="submit" class="btn btn-primary w-100 py-2.5 fw-semibold mb-3">Sign Up</button>
+                <button type="submit" class="btn btn-primary w-100 py-2.5 fw-bold mb-3 shadow-sm rounded-3">
+                    <i class="fa-solid fa-user-check me-2"></i>Sign Up
+                </button>
 
-            <div class="text-center">
-                <span class="text-secondary small">Already have an account? </span>
-                <a href="{{ url_for('auth.login') }}" class="text-primary small fw-semibold text-decoration-none">Sign In</a>
-            </div>
-        </form>
+                <div class="text-center">
+                    <span class="text-secondary small">Already have an account? </span>
+                    <a href="{{ url_for('auth.login') }}" class="text-primary small fw-bold text-decoration-none">Sign In</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}
+
