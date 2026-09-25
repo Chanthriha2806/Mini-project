@@ -492,6 +492,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const chatbotInput = document.getElementById('chatbotInput');
     const chatbotSendBtn = document.getElementById('chatbotSendBtn');
     const chatbotBody = document.getElementById('chatbotBody');
+    const chatbotTooltip = document.getElementById('chatbotTooltip');
+
+    // 10-Second Recurring "Need Help!" Tooltip Animation Cycle
+    if (chatbotTooltip) {
+        function triggerTooltipCycle() {
+            // Do not show if the chat window is currently open
+            if (chatbotPanel && chatbotPanel.classList.contains('active')) {
+                chatbotTooltip.classList.remove('show');
+                return;
+            }
+
+            // Pop up bubble animation
+            chatbotTooltip.classList.add('show');
+
+            // Stay visible for 5 seconds, then go off
+            setTimeout(() => {
+                chatbotTooltip.classList.remove('show');
+            }, 5000);
+        }
+
+        // Initial popup after 2 seconds
+        setTimeout(triggerTooltipCycle, 2000);
+
+        // Repeat: 5s visible + 10s hidden = 15s interval cycle (exactly 10 seconds off between popups!)
+        setInterval(triggerTooltipCycle, 15000);
+
+        // Also allow clicking the bubble to open the chatbot
+        chatbotTooltip.addEventListener('click', () => {
+            if (chatbotPanel && chatbotLauncher) {
+                chatbotPanel.classList.add('active');
+                chatbotLauncher.classList.add('active');
+                chatbotTooltip.classList.remove('show');
+                if (chatbotInput) chatbotInput.focus();
+            }
+        });
+    }
 
     if (chatbotLauncher && chatbotPanel && chatbotCloseBtn) {
         // Toggle panel
@@ -499,6 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
             chatbotPanel.classList.toggle('active');
             chatbotLauncher.classList.toggle('active');
             if (chatbotPanel.classList.contains('active')) {
+                if (chatbotTooltip) chatbotTooltip.classList.remove('show');
                 chatbotInput.focus();
             }
         });
