@@ -4,6 +4,7 @@ class Config:
     """Base configuration settings for the IT Infrastructure Monitoring Dashboard."""
     # Security keys
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production-12345')
+    TEMPLATES_AUTO_RELOAD = True
     
     # Database configuration
     # Default to SQLite for instant out-of-the-box execution.
