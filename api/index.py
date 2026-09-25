@@ -9,10 +9,11 @@ from app import create_app
 try:
     app = create_app('production')
 except Exception as e:
-    # Fallback minimal app if DB or initialization throws exception
+    import traceback
+    err_tb = traceback.format_exc()
     from flask import Flask
     app = Flask(__name__)
     
     @app.route('/')
     def error_fallback():
-        return f"Startup Exception: {str(e)}", 500
+        return f"<h3>Startup Exception:</h3><pre>{err_tb}</pre>", 200
