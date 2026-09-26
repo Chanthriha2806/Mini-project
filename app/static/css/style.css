@@ -1365,4 +1365,169 @@ body {
     color: #f43f5e !important;
 }
 
+/* ==========================================================================
+   Ultra-Professional Micro-Animations & Dynamic Motion System
+   ========================================================================== */
+
+/* 1. Staggered Card & Section Entrance Animations */
+.main-content > * {
+    animation: fadeInUpStagger 0.65s cubic-bezier(0.16, 1, 0.3, 1) ease-out;
+}
+
+@keyframes fadeInUpStagger {
+    from {
+        opacity: 0;
+        transform: translateY(28px) scale(0.98);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 2. Interactive Card 3D Lift & Ambient Glow */
+.metric-card, .card, .iface-card {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.4s ease, border-color 0.4s ease !important;
+}
+
+.metric-card:hover, .iface-card:hover {
+    transform: translateY(-6px) scale(1.015);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.35), 0 0 25px rgba(245, 158, 11, 0.25) !important;
+    border-color: rgba(245, 158, 11, 0.5) !important;
+}
+
+/* 3. Dynamic Progress Bar Fluid Sheen Wave */
+.progress-bar {
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: progressWaveMove 2.5s infinite linear;
+}
+
+@keyframes progressWaveMove {
+    0% { left: -100%; }
+    100% { left: 200%; }
+}
+
+/* 4. Live Pulsing Neon Status Indicators */
+.status-pulse-online {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #10b981;
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    animation: heartbeatGreen 2s infinite;
+}
+
+@keyframes heartbeatGreen {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+    }
+    70% {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+    }
+}
+
+.status-pulse-warning {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #f59e0b;
+    box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    animation: heartbeatOrange 1.8s infinite;
+}
+
+@keyframes heartbeatOrange {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7);
+    }
+    70% {
+        transform: scale(1.15);
+        box-shadow: 0 0 0 10px rgba(245, 158, 11, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(245, 158, 11, 0);
+    }
+}
+
+.status-pulse-critical {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #ef4444;
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+    animation: heartbeatRed 1.2s infinite;
+}
+
+@keyframes heartbeatRed {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.8);
+    }
+    70% {
+        transform: scale(1.25);
+        box-shadow: 0 0 0 12px rgba(239, 68, 68, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+    }
+}
+
+/* 5. Sidebar Navigation Link Hover Micro-Animations */
+.sidebar-nav-link {
+    transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1) !important;
+}
+
+.sidebar-nav-link:hover i {
+    transform: scale(1.22) rotate(8deg);
+    color: var(--accent-color) !important;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.sidebar-nav-link.active {
+    animation: sidebarPulseActive 3s infinite ease-in-out;
+}
+
+@keyframes sidebarPulseActive {
+    0%, 100% { box-shadow: inset 4px 0 0 var(--accent-color), 0 0 15px rgba(245, 158, 11, 0.2); }
+    50% { box-shadow: inset 4px 0 0 var(--accent-color), 0 0 25px rgba(244, 63, 94, 0.35); }
+}
+
+/* 6. Interactive Table Row Glow & Slide */
+.table tbody tr {
+    transition: background-color 0.25s ease, transform 0.25s ease;
+}
+
+.table tbody tr:hover {
+    background-color: rgba(245, 158, 11, 0.08) !important;
+    transform: translateX(4px);
+}
+
+/* 7. Radiant Button Sheen & Ripple Effect */
+.btn-outline-primary:hover, .btn-outline-success:hover, .btn-outline-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
 

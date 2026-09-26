@@ -137,6 +137,10 @@ def main():
         server_url = server_url[:-1]
 
     session = requests.Session()
+    session.headers.update({
+        'Bypass-Tunnel-Reminder': 'true',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
+    })
     login_url = f"{server_url}/auth/login"
 
     print("\n[*] Authenticating with server...")
