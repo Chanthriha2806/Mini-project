@@ -560,9 +560,9 @@ class DashboardController:
     @staticmethod
     def chat_with_ai(user, message, current_metrics):
         """
-        Formulates a context-aware markdown diagnostics report based on system telemetry.
+        Formulates a human-like interactive conversation and context-aware markdown report.
         """
-        msg = message.lower()
+        msg = message.lower().strip()
         
         cpu_val = current_metrics.get('cpu', {}).get('usage', 0.0)
         ram_val = current_metrics.get('memory', {}).get('percent', 0.0)
@@ -572,6 +572,7 @@ class DashboardController:
         down_speed = current_metrics.get('network', {}).get('download_speed', 0.0)
         hostname = current_metrics.get('system', {}).get('hostname', 'Localhost')
         os_name = current_metrics.get('system', {}).get('os', 'Unknown')
+        username = user.username if (user and hasattr(user, 'username') and user.username) else "Friend"
         
         alerts_list = Alert.query.filter_by(status='ACTIVE').all()
         alerts_count = len(alerts_list)
@@ -585,7 +586,82 @@ class DashboardController:
         if processes:
             top_proc = processes[0]
             top_proc_str = f"`{top_proc.get('name')}` (PID: {top_proc.get('pid')}, CPU: {top_proc.get('cpu_percent')}%, RAM: {top_proc.get('memory_percent')}%)"
-        
+
+        # 1. Human Greetings & Friendly Conversation
+        greetings = ['hi', 'hello', 'hey', 'good morning', 'good afternoon', 'good evening', 'yo', 'greetings', 'sup', 'howdy', 'hi there', 'hello there']
+        if msg in greetings or any(msg.startswith(g) for g in ['hi ', 'hello ', 'hey ']):
+            return (
+                f"Hello **{username}**! 👋 😊\n\n"
+                f"I'm **MonitorAI**, your personal IT infrastructure and laptop health companion! How are you doing today?\n\n"
+                f"Here is a quick live snapshot of your laptop performance:\n"
+                f"* 🖥️ **CPU Load**: `{cpu_val}%` ({'Optimal' if cpu_val < 75 else 'Elevated'})\n"
+                f"* 💾 **RAM Allocation**: `{ram_val}%` ({'Healthy' if ram_val < 75 else 'High'})\n"
+                f"* 💽 **Disk Storage**: `{disk_val}%` occupied\n\n"
+                f"What would you like me to check or help you with today? Feel free to ask me anything about your system, raise a support ticket, or troubleshoot an issue!"
+            )
+
+        # 2. "How are you" / Friendly Check-ins
+        if any(w in msg for w in ['how are you', 'how are u', 'how r u', 'how is it going', 'how are things', 'how do you do']):
+            return (
+                f"I'm doing great, thank you for asking, **{username}**! 😊\n\n"
+                f"All telemetry sensors on **{hostname}** are active and responsive! "
+                f"Your laptop health is currently `{current_metrics.get('health_status', 'HEALTHY')}`.\n\n"
+                f"How are you doing today? Is there any laptop issue or performance question you'd like to discuss?"
+            )
+
+        # 3. "Who are you" / "What is your name"
+        if any(w in msg for w in ['who are you', 'what is your name', 'what are you', 'who made you', 'tell me about yourself']):
+            return (
+                f"I am **MonitorAI** 🤖 — your AI IT Infrastructure & Laptop Performance Assistant!\n\n"
+                f"Think of me as your dedicated digital sysadmin! My job is to:\n"
+                f"1. 📊 **Monitor** laptop CPU, RAM, Disk, and Network telemetry in real time.\n"
+                f"2. 📧 **Trigger Email Alerts** whenever resource thresholds are breached.\n"
+                f"3. 🛠️ **Help Troubleshoot** runaway processes and high hardware usage.\n"
+                f"4. 🎟️ **Assist Clients** in submitting support tickets.\n\n"
+                f"How can I assist you right now, **{username}**?"
+            )
+
+        # 4. Thank You & Appreciation
+        if any(w in msg for w in ['thank you', 'thanks', 'thx', 'thank u', 'appreciate it', 'great job', 'awesome', 'good bot']):
+            return (
+                f"You're very welcome, **{username}**! Glad I could help! 😊✨\n\n"
+                f"I'm always here 24/7 keeping your laptop safe and running smoothly. Let me know whenever you need anything else!"
+            )
+
+        # 5. Goodbye & Farewell
+        if any(w in msg for w in ['bye', 'goodbye', 'see you', 'cya', 'catch you later', 'exit', 'quit']):
+            return (
+                f"Goodbye for now, **{username}**! 👋 Have a wonderful day ahead!\n\n"
+                f"Don't worry, I'll continue monitoring **{hostname}** in the background and will send an email alert if any resource threshold is crossed! 🛡️"
+            )
+
+        # 6. General Help & Capabilities
+        if any(w in msg for w in ['help', 'what can you do', 'options', 'features', 'instructions', 'guide']):
+            return (
+                f"### 🛠️ How I Can Help You, **{username}**:\n\n"
+                f"You can talk to me naturally or ask about any of the following:\n\n"
+                f"* 🖥️ **CPU Diagnostics**: Type *\"CPU load\"* or *\"Why is my processor slow?\"*\n"
+                f"* 💾 **RAM & Memory**: Type *\"Memory status\"* or *\"Is RAM usage high?\"*\n"
+                f"* 💽 **Disk Storage**: Type *\"Check storage space limits\"*\n"
+                f"* ⚙️ **Running Processes**: Type *\"Show top processes\"* or *\"Kill runaway process\"*\n"
+                f"* 🎟️ **Support Tickets**: Type *\"How to raise a ticket?\"*\n"
+                f"* 🌐 **Network Speeds**: Type *\"Check internet speed\"*\n\n"
+                f"Just type what's on your mind and I'll analyze it for you in real time!"
+            )
+
+        # 7. Tickets Inquiry
+        if any(w in msg for w in ['ticket', 'issue', 'problem', 'support', 'complain', 'raise']):
+            return (
+                f"### 🎟️ Support Ticket Assistance\n\n"
+                f"If you are experiencing a technical issue with your laptop, you can raise a ticket directly from your Client Dashboard:\n\n"
+                f"1. Scroll down to the **Raise Support Ticket** section on the dashboard.\n"
+                f"2. Enter a short **Subject** (e.g. *Laptop Overheating* or *Software Installation*).\n"
+                f"3. Type a **Description** of your issue.\n"
+                f"4. Click **Submit Ticket**.\n\n"
+                f"Our Admin team will instantly see your ticket with a **RED Open status** and start working to resolve it!"
+            )
+
+        # 8. Technical Telemetry Diagnostics
         if any(w in msg for w in ['cpu', 'processor', 'load', 'utilization']):
             response = f"### 🖥️ CPU Diagnostics Report for **{hostname}**\n\n"
             response += f"* **Current Usage**: `{cpu_val}%`\n"
@@ -682,18 +758,16 @@ class DashboardController:
             response += f"   * **Windows (PowerShell)**: `Stop-Process -Id <PID> -Force`\n"
             response += f"   * **Linux/macOS**: `kill -9 <PID>`\n"
         else:
-            response = f"### 🤖 MonitorAI Diagnostics Assistant\n\n"
-            response += f"Hello! I am your real-time IT Infrastructure Diagnostics assistant. I analyze the performance metrics of the **{hostname}** server node running **{os_name}**.\n\n"
-            response += f"Here is a quick snapshot of the system health:\n"
-            response += f"* **Overall Status**: `{current_metrics.get('health_status', 'UNKNOWN')}`\n"
-            response += f"* **CPU Usage**: `{cpu_val}%` | **Memory**: `{ram_val}%` | **Disk**: `{disk_val}%`\n"
-            response += f"* **Active Alerts**: `{alerts_count}` triggers active\n\n"
-            response += f"#### 💡 Suggested Diagnostics Queries:\n"
+            response = f"Hello **{username}**! 👋 😊\n\n"
+            response += f"I am your real-time **MonitorAI IT Infrastructure & Laptop Health Assistant**. "
+            response += f"I am actively monitoring **{hostname}** (CPU: `{cpu_val}%` | RAM: `{ram_val}%` | Disk: `{disk_val}%`).\n\n"
+            response += f"How can I help you today? Here are some things you can ask me:\n"
             response += f"* 🖥️ *\"Tell me about the CPU load\"*\n"
             response += f"* 💾 *\"Is memory usage high?\"*\n"
             response += f"* 💽 *\"Check storage space limits\"*\n"
-            response += f"* ⚙ *\"Show running processes\"*\n"
-            response += f"* 🌐 *\"Check network speed status\"*\n"
+            response += f"* ⚙️ *\"Show running processes\"*\n"
+            response += f"* 🎟️ *\"How do I raise a ticket?\"*\n"
+            response += f"* 🔔 *\"Are there any active alerts?\"*\n"
         return response
 
     @staticmethod
