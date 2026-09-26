@@ -2,55 +2,55 @@
    Executive Midnight Slate & Cool Cyan Theme & Micro-Interaction Styling
    ========================================================================== */
 
-/* Core CSS Tokens & Color Palette (Light Mode - Sunset Rose & Amber Porcelain) */
+/* Core CSS Tokens & Color Palette (Light Mode - Pearl Obsidian & Electric Amber) */
 :root {
-    --bg-primary: #faf5ff;
+    --bg-primary: #fafafa;
     --bg-secondary: #ffffff;
-    --bg-sidebar: linear-gradient(180deg, #180e29 0%, #2b1748 65%, #180e29 100%);
-    --sidebar-text: #d8b4fe;
-    --sidebar-active-bg: linear-gradient(90deg, rgba(245, 158, 11, 0.25) 0%, rgba(244, 63, 94, 0.18) 100%);
-    --sidebar-active-text: #fbbf24;
-    --sidebar-active-border: #f59e0b;
-    --text-primary: #1e1033;
-    --text-secondary: #3b1d63;
-    --text-muted: #7e22ce;
+    --bg-sidebar: linear-gradient(180deg, #18181b 0%, #27272a 65%, #18181b 100%);
+    --sidebar-text: #d4d4d8;
+    --sidebar-active-bg: linear-gradient(90deg, rgba(234, 179, 8, 0.25) 0%, rgba(99, 102, 241, 0.18) 100%);
+    --sidebar-active-text: #facc15;
+    --sidebar-active-border: #eab308;
+    --text-primary: #18181b;
+    --text-secondary: #52525b;
+    --text-muted: #ca8a04;
     --card-bg: rgba(255, 255, 255, 0.95);
-    --card-shadow: 0 15px 35px -5px rgba(245, 158, 11, 0.15), 0 4px 12px -2px rgba(244, 63, 94, 0.1);
-    --card-border: 1px solid rgba(243, 232, 255, 0.9);
-    --card-hover-border: rgba(245, 158, 11, 0.75);
-    --accent: #d97706;
-    --accent-hover: #b45309;
-    --accent-glow: rgba(245, 158, 11, 0.45);
+    --card-shadow: 0 15px 35px -5px rgba(234, 179, 8, 0.18), 0 4px 12px -2px rgba(99, 102, 241, 0.1);
+    --card-border: 1px solid rgba(228, 228, 231, 0.9);
+    --card-hover-border: rgba(234, 179, 8, 0.75);
+    --accent: #ca8a04;
+    --accent-hover: #a16207;
+    --accent-glow: rgba(234, 179, 8, 0.45);
     --success: #10b981;
-    --warning: #f59e0b;
+    --warning: #eab308;
     --danger: #ef4444;
-    --border-color: #f3e8ff;
+    --border-color: #e4e4e7;
     --nav-height: 70px;
     --sidebar-width: 260px;
-    --spotlight-color: rgba(245, 158, 11, 0.15);
+    --spotlight-color: rgba(234, 179, 8, 0.15);
 }
 
-/* Dark Mode Tokens Override - Sunset Rose Gold & Midnight Amber Plum */
+/* Dark Mode Tokens Override - Midnight Obsidian & Electric Gold */
 [data-theme="dark"] {
-    --bg-primary: #12091f;
-    --bg-secondary: #1c102e;
-    --bg-sidebar: #0e0719;
-    --sidebar-text: #c084fc;
-    --sidebar-active-bg: linear-gradient(90deg, rgba(245, 158, 11, 0.28) 0%, rgba(244, 63, 94, 0.22) 100%);
-    --sidebar-active-text: #fbbf24;
-    --sidebar-active-border: #f59e0b;
-    --text-primary: #faf5ff;
-    --text-secondary: #e9d5ff;
-    --text-muted: #fbbf24;
-    --card-bg: rgba(28, 16, 46, 0.88);
-    --card-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.85), 0 0 35px rgba(245, 158, 11, 0.25);
-    --card-border: 1px solid rgba(245, 158, 11, 0.3);
-    --card-hover-border: rgba(244, 63, 94, 0.85);
-    --accent: #f59e0b;
-    --accent-hover: #fbbf24;
-    --accent-glow: rgba(245, 158, 11, 0.55);
-    --border-color: #2e1a47;
-    --spotlight-color: rgba(244, 63, 94, 0.25);
+    --bg-primary: #09090b;
+    --bg-secondary: #141417;
+    --bg-sidebar: #09090b;
+    --sidebar-text: #a1a1aa;
+    --sidebar-active-bg: linear-gradient(90deg, rgba(234, 179, 8, 0.28) 0%, rgba(99, 102, 241, 0.22) 100%);
+    --sidebar-active-text: #facc15;
+    --sidebar-active-border: #eab308;
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #facc15;
+    --card-bg: rgba(24, 24, 27, 0.88);
+    --card-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.9), 0 0 35px rgba(234, 179, 8, 0.22);
+    --card-border: 1px solid rgba(234, 179, 8, 0.35);
+    --card-hover-border: rgba(99, 102, 241, 0.85);
+    --accent: #eab308;
+    --accent-hover: #facc15;
+    --accent-glow: rgba(234, 179, 8, 0.55);
+    --border-color: #27272a;
+    --spotlight-color: rgba(99, 102, 241, 0.25);
 }
 
 /* Reset and Layout Scaffolding */
@@ -986,7 +986,7 @@ body {
 .auth-bg-orb-1 {
     width: 480px;
     height: 480px;
-    background: #f59e0b;
+    background: #eab308;
     top: -120px;
     left: -120px;
     animation: floatOrb 12s ease-in-out infinite alternate;
@@ -995,7 +995,7 @@ body {
 .auth-bg-orb-2 {
     width: 520px;
     height: 520px;
-    background: #f43f5e;
+    background: #6366f1;
     bottom: -150px;
     right: -150px;
     animation: floatOrb 15s ease-in-out infinite alternate-reverse;
