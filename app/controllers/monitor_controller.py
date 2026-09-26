@@ -1,6 +1,9 @@
 import socket
 import platform
-import psutil
+try:
+    import psutil
+except ImportError:
+    psutil = None
 from app.utilities.system_monitor import SystemMonitor
 
 class MonitorController:

@@ -2,7 +2,10 @@ import os
 import time
 import socket
 import platform
-import psutil
+try:
+    import psutil
+except ImportError:
+    psutil = None
 from datetime import datetime
 
 class SystemMonitor:
