@@ -616,48 +616,6 @@
     </div>
 </div>
 
-<!-- Floating AI Chatbot Widget -->
-<div class="chatbot-widget">
-    <div class="chatbot-tooltip-bubble" id="chatbotTooltip">
-        <i class="fa-solid fa-sparkles text-warning me-1"></i>
-        <span>Need Help? Ask MonitorAI!</span>
-        <div class="bubble-arrow"></div>
-    </div>
-    <button class="chatbot-launcher" id="chatbotLauncher" title="MonitorAI Diagnostic Chatbot">
-        <i class="fa-solid fa-robot"></i>
-    </button>
-    <div class="chatbot-panel" id="chatbotPanel">
-        <div class="chatbot-header">
-            <div class="chatbot-header-title">
-                <i class="fa-solid fa-robot fs-5"></i>
-                <div>
-                    <h6 class="fw-bold text-white mb-0">MonitorAI Agent</h6>
-                    <span class="text-white-50" style="font-size: 0.7rem;">Diagnostics Assistant</span>
-                </div>
-            </div>
-            <button class="chatbot-close-btn" id="chatbotCloseBtn">&times;</button>
-        </div>
-        <div class="chatbot-body" id="chatbotBody">
-            <div class="chatbot-message ai">
-                <p>Hello! I am **MonitorAI**, your context-aware troubleshooting assistant. Ask me anything about the server state!</p>
-                <div class="chatbot-suggested-queries">
-                    <button class="chatbot-suggested-btn" data-query="Tell me about the CPU load">🖥️ CPU Load</button>
-                    <button class="chatbot-suggested-btn" data-query="Is memory usage high?">💾 RAM Health</button>
-                    <button class="chatbot-suggested-btn" data-query="Check storage space limits">💽 Disk Prediction</button>
-                    <button class="chatbot-suggested-btn" data-query="Show running processes">⚙️ Top Processes</button>
-                </div>
-            </div>
-        </div>
-        <div class="chatbot-footer">
-            <div class="chatbot-input-wrapper">
-                <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Ask MonitorAI Assistant..." autocomplete="off">
-            </div>
-            <button class="chatbot-send-btn" id="chatbotSendBtn" disabled>
-                <i class="fa-solid fa-paper-plane"></i>
-            </button>
-        </div>
-    </div>
-</div>
 {% endblock %}
 
 {% block scripts %}
