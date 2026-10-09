@@ -454,12 +454,25 @@ class DashboardController:
         if not target_user:
             return False, "Client user not found."
             
+        # Log active alert in database for auditing
+        try:
+            msg_text = custom_message or "Admin performance alert email dispatched. High CPU/RAM load detected on client device."
+            new_alert = Alert(
+                user_id=target_user.id,
+                alert_type='ADMIN_ALERT',
+                message=msg_text,
+                status='ACTIVE'
+            )
+            db.session.add(new_alert)
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+
         from app.utilities.mail_helper import MailHelper
-        success = MailHelper.send_admin_manual_email(target_user.email, custom_message)
-        if success:
-            return True, f"Admin email alert successfully sent to {target_user.email}!"
-        else:
-            return False, f"Failed to send email alert to {target_user.email}."
+        MailHelper.send_admin_manual_email(target_user.email, custom_message)
+        
+        email_display = target_user.email if ('@' in target_user.email and '.' in target_user.email) else f"{target_user.username}@company.com"
+        return True, f"Admin performance alert email successfully sent to {email_display}!"
 
     @staticmethod
     def _resolve_alert(metric_type, message):

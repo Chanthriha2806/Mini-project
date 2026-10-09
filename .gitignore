@@ -49,3 +49,5 @@ app/static/reports/*
 *.exe
 MonitorAI.exe
 
+
+.vercel

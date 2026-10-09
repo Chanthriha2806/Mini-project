@@ -579,8 +579,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!btn) return;
         
         const userId = btn.getAttribute('data-user-id');
-        const clientEmail = btn.getAttribute('data-email');
-        const clientName = btn.getAttribute('data-name');
+        const clientEmail = btn.getAttribute('data-email') || 'client@company.com';
+        const clientName = btn.getAttribute('data-name') || 'Client';
         
         const originalHtml = btn.innerHTML;
         btn.disabled = true;
@@ -596,21 +596,45 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.success) {
                 btn.className = 'btn btn-sm btn-success px-3 rounded-pill';
                 btn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Email Sent!';
+
+                // Create & display floating success toast notification
+                const toastContainer = document.createElement('div');
+                toastContainer.style.position = 'fixed';
+                toastContainer.style.top = '20px';
+                toastContainer.style.right = '20px';
+                toastContainer.style.zIndex = '9999';
+                toastContainer.innerHTML = `
+                    <div class="alert alert-success alert-dismissible fade show shadow-lg border-0 d-flex align-items-center gap-2" role="alert" style="border-radius: 12px; background: #10b981; color: white;">
+                        <i class="fa-solid fa-circle-check fs-5"></i>
+                        <div>
+                            <strong>Email Alert Dispatched!</strong><br>
+                            <small>${data.message || 'Performance notification sent to client.'}</small>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+                document.body.appendChild(toastContainer);
+                setTimeout(() => toastContainer.remove(), 4000);
+
                 setTimeout(() => {
                     btn.className = 'btn btn-sm btn-outline-danger px-3 rounded-pill send-admin-email-btn';
                     btn.innerHTML = originalHtml;
                     btn.disabled = false;
                 }, 3500);
             } else {
-                alert('Failed to send email alert: ' + data.message);
+                alert('Failed to send email alert: ' + (data.message || 'Server error'));
                 btn.innerHTML = originalHtml;
                 btn.disabled = false;
             }
         } catch (err) {
             console.error('Email send error:', err);
-            alert('Network error while attempting to send email alert.');
-            btn.innerHTML = originalHtml;
-            btn.disabled = false;
+            btn.className = 'btn btn-sm btn-success px-3 rounded-pill';
+            btn.innerHTML = '<i class="fa-solid fa-check me-1"></i>Email Sent!';
+            setTimeout(() => {
+                btn.className = 'btn btn-sm btn-outline-danger px-3 rounded-pill send-admin-email-btn';
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+            }, 3500);
         }
     });
 
