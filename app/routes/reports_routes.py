@@ -19,6 +19,10 @@ def reports_home():
 @login_required
 def download_report(filename):
     """Transfers the target report file to the client for local download."""
+    if not current_user.is_admin:
+        flash("Access restricted. Reports are only accessible by Administrators.", "warning")
+        return redirect(url_for('dashboard.index'))
+
     if os.environ.get('VERCEL') or os.environ.get('VERCEL_ENV'):
         reports_dir = '/tmp'
     else:
@@ -37,6 +41,10 @@ def download_report(filename):
 @login_required
 def generate(report_type, file_format):
     """Triggers telemetry statistics calculations and returns file for download."""
+    if not current_user.is_admin:
+        flash("Access restricted. Reports are only accessible by Administrators.", "warning")
+        return redirect(url_for('dashboard.index'))
+
     success, result = ReportsController.generate_report(report_type, file_format)
     if success:
         flash(f"{report_type.capitalize()} report compiled successfully. Starting download...", "success")

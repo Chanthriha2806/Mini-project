@@ -19,7 +19,8 @@
 <!-- Hidden Metadata Block for JS config -->
 <div id="dashboard-meta" data-refresh-interval="{{ settings.refresh_interval }}" class="d-none"></div>
 
-<!-- Top Row: Server Status & Alerts Notification Banner -->
+{% if current_user.is_admin %}
+<!-- Top Row: Server Status & Alerts Notification Banner (Admin Only) -->
 <div class="row mb-3">
     <div class="col-12">
         <div class="metric-card py-3 px-4 border-start border-4" id="healthStatusBox" style="height: auto;">
@@ -42,6 +43,7 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 {% if current_user.is_admin %}
 <!-- Admin Executive Fleet Device Selector & Client Laptops Monitoring Table -->
