@@ -3,6 +3,18 @@
 
 ---
 
+## ACKNOWLEDGEMENT
+
+I express my sincere gratitude to everyone who supported me in the successful completion of my project, **“MONITORAI: AI-Enabled IT Infrastructure Monitoring & Client Fleet Diagnostics Dashboard”**.
+
+I am deeply thankful to the Management of **KGiSL Institute of Information Management**, the Principal, and the Head of the Department of Master of Computer Applications for providing excellent facilities, infrastructure, and a supportive environment.
+
+I express my heartfelt thanks to my project guide, **Mrs. Gomathi R, MCA, M.Phil (PhD).**, Assistant Professor, Department of Master of Computer Applications, for her invaluable guidance, constant motivation, and timely suggestions throughout the development of this project.
+
+I also extend my sincere thanks to all faculty members of the MCA department, my family, and friends for their continuous support and encouragement.
+
+---
+
 ## ABSTRACT
 
 The **AI-Enabled IT Infrastructure Monitoring & Client Fleet Diagnostics Dashboard** (MonitorAI) is a full-stack, enterprise-grade system health monitoring platform engineered to solve the operational challenges of modern distributed computer networks and enterprise IT fleets. Traditional IT monitoring solutions often rely on fragmented tools, manual resource audits, and delayed error discovery, leading to unmitigated system downtime and hardware failures. 

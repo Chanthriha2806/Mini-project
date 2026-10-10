@@ -164,6 +164,20 @@ def main():
         print(f"[ERROR] Failed to connect to server: {e}")
         sys.exit(1)
 
+        # Handle direct CLI ticket submission option
+        if '--ticket' in sys.argv:
+            ticket_idx = sys.argv.index('--ticket')
+            sub = sys.argv[ticket_idx + 1] if len(sys.argv) > ticket_idx + 1 else f"Hardware issue from {socket.gethostname()}"
+            desc = sys.argv[ticket_idx + 2] if len(sys.argv) > ticket_idx + 2 else "Laptop resource issue reported from remote client agent terminal."
+            
+            ticket_url = f"{server_url}/api/tickets/create"
+            t_res = session.post(ticket_url, json={'subject': sub, 'description': desc})
+            if t_res.status_code == 200:
+                print(f"[+] Support Ticket Created Successfully! ({t_res.json().get('message')})")
+            else:
+                print(f"[-] Failed to submit support ticket: {t_res.text}")
+            sys.exit(0)
+
     report_url = f"{server_url}/api/metrics/report"
     print(f"\n[*] Telemetry reporting started (Interval: 5s)...")
     print("[*] Press Ctrl+C to terminate the client agent.\n")

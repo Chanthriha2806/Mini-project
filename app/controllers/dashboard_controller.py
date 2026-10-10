@@ -790,6 +790,9 @@ class DashboardController:
             return False, "Subject and description are required to raise a ticket."
         try:
             from app.models.ticket import Ticket
+            from app.models.alert import Alert
+            from app.utilities.mail_helper import MailHelper
+
             new_ticket = Ticket(
                 user_id=user.id,
                 subject=subject.strip(),
@@ -798,6 +801,30 @@ class DashboardController:
             )
             db.session.add(new_ticket)
             db.session.commit()
+
+            # Record active alert entry for auditing
+            try:
+                alert_msg = f"Support Ticket #{new_ticket.id} raised by {user.username}: {subject.strip()}"
+                new_alert = Alert(
+                    user_id=user.id,
+                    alert_type='SUPPORT_TICKET',
+                    message=alert_msg,
+                    status='ACTIVE'
+                )
+                db.session.add(new_alert)
+                db.session.commit()
+            except Exception:
+                db.session.rollback()
+
+            # Dispatch notification alert
+            try:
+                MailHelper.send_admin_manual_email(
+                    'admin@monitor.com',
+                    f"New Support Ticket #{new_ticket.id} raised by client {user.username} ({user.email}):\n\nSubject: {subject.strip()}\nDescription: {description.strip()}"
+                )
+            except Exception:
+                pass
+
             return True, f"Ticket #{new_ticket.id} submitted successfully!"
         except Exception as e:
             db.session.rollback()
